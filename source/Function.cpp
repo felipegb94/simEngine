@@ -4,6 +4,7 @@
  *  Created on: Sep 26, 2013
  *      Author: pipe
  */
+#include "symbolicc++.h"
 #include "Function.h"
 
 
@@ -23,7 +24,7 @@ Function::Function(){
 		std::cout << "Error when initializing function" << std::endl;
 		std::cout << e.GetMsg() << std::endl;
 	}
-/*	cout <<"SymbolicC++ Test" <<endl;
+	cout <<"SymbolicC++ Test" <<endl;
 	 Symbolic alpha("alpha");
 	 Symbolic X, XI, dX, result;
 
@@ -37,7 +38,7 @@ Function::Function(){
 
 	 result = XI * dX;        cout << result << endl;
 	 result = result[(cos(alpha)^2) == 1 - (sin(alpha)^2)];
-	 cout << result << endl;*/
+	 cout << result << endl;
 }
 void Function::setFunction(std::string function){
 	try{

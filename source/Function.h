@@ -12,7 +12,6 @@
 
 #include <string>
 #include <iostream>
-#include "symbolicc++.h"
 using namespace mu;
 using namespace std;
 
