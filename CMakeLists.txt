@@ -14,18 +14,6 @@ find_path(MUPARSER_INCLUDE_DIR
           PATH_SUFFIXES muparser
           DOC "The muParser include directory")
 
-       
-#find_library(SYMBOLIC_LIBRARY
-#             NAMES symbolicc++
-#             DOC "The symbolicc++ binary" REQUIRED)
-
-#find_path(SYMBOLIC_INCLUDE_DIR
-#          NAMES symbolicc++.h
-#          PATH_SUFFIXES symbolic
-#         DOC "The symbolicc++ include directory")
-
-#message(${SYMBOLIC_LIBRARY})          
-
 include_directories(
 ${ARMADILLO_INCLUDE_DIRS} 
 ${MUPARSER_INCLUDE_DIR} 
