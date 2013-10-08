@@ -4,10 +4,10 @@
  *  Created on: Sep 26, 2013
  *      Author: pipe
  */
-#include "../includes/c_constraint.h"
+#include "c_constraint.h"
 #include <iostream>
-#include "../includes/rapidjson/document.h"
-#include "../includes/Function.h"
+#include "rapidjson/document.h"
+#include "Function.h"
 #include <string>
 
 

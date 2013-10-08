@@ -4,7 +4,7 @@
  *  Created on: Sep 26, 2013
  *      Author: pipe
  */
-#include "../includes/c_constraint.h"
+#include "c_constraint.h"
 #include <iostream>
 c_absX::c_absX(const rapidjson::Value& d)
 :	c_constraint(d),

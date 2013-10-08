@@ -8,7 +8,7 @@
 #include <string>
 #include <muParser.h>
 #include <vector>
-#include "../includes/averageStdDev.h"
+#include "averageStdDev.h"
 
 using namespace std;
 //using namespace arma;

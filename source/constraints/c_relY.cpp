@@ -5,7 +5,7 @@
  *      Author: pipe
  */
 
-#include "../includes/c_constraint.h"
+#include "c_constraint.h"
 #include <iostream>
 
 c_relY::c_relY(const rapidjson::Value& d)

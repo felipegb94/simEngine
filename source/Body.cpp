@@ -8,8 +8,8 @@
 #include <string>
 #include <iostream>
 
-#include "../includes/Body.h"
-#include "../includes/rapidjson/document.h"
+#include "Body.h"
+#include "rapidjson/document.h"
 
 
 Body::Body(const rapidjson::Value& d){

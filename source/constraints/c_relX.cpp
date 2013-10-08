@@ -6,7 +6,7 @@
  */
 
 
-#include "../includes/c_constraint.h"
+#include "c_constraint.h"
 #include <iostream>
 
 c_relX::c_relX(const rapidjson::Value& d)

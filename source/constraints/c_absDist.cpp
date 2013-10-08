@@ -5,7 +5,7 @@
  *      Author: pipe
  */
 
-#include "../includes/c_constraint.h"
+#include "c_constraint.h"
 #include <iostream>
 c_absDist::c_absDist(const rapidjson::Value& d)
 :	c_constraint(d),

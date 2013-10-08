@@ -4,16 +4,16 @@
 #include <vector>
 #include <armadillo>
 
-#include "../../includes/jsonParser.h"
-#include "../../includes/rapidjson/document.h"
-#include "../../includes/Body.h"
-#include "../../includes/c_constraint.h"
-#include "../../includes/Model.h"
-#include "../../includes/Function.h"
+#include "jsonParser.h"
+#include "rapidjson/document.h"
+#include "Body.h"
+#include "c_constraint.h"
+#include "Model.h"
+#include "Function.h"
 #include <stdlib.h>
 
 
-//#include "Symbolic/headers/symbolicc++.h"
+
 
 
 

@@ -6,7 +6,7 @@
  */
 
 
-#include "../includes/c_constraint.h"
+#include "c_constraint.h"
 #include <iostream>
 
 c_relDist::c_relDist(const rapidjson::Value& d)

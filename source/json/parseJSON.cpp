@@ -9,7 +9,7 @@
 #include "../includes/rapidjson/document.h"
 #include <vector>
 #include <string>
-#include "../includes/jsonParser.h"
+#include "jsonParser.h"
 //#include "Symbolic/headers/symbolic/symbolicc++.h"
 
 using namespace std;

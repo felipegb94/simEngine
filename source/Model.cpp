@@ -4,15 +4,15 @@
  *  Created on: Sep 23, 2013
  *      Author: pipe
  */
-#include "../includes/Body.h"
+#include "Body.h"
 #include <string>
 #include <vector>
 #include <iostream>
-#include "../includes/c_constraint.h"
+#include "c_constraint.h"
 
-#include "../includes/rapidjson/document.h"
-#include "../includes/Model.h"
-#include "../includes/jsonParser.h"
+#include "rapidjson/document.h"
+#include "Model.h"
+#include "jsonParser.h"
 
 Model::Model(MyJsonDocument& d){
 	std::cout << "Creating a model" << endl;

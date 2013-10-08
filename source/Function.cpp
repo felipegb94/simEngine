@@ -4,10 +4,10 @@
  *  Created on: Sep 26, 2013
  *      Author: pipe
  */
-#include "../includes/Function.h"
-#include <muParser.h>
-#include <string>
-#include <iostream>
+#include "Function.h"
+
+
+
 #define sim2D_pi 3.141592653589793
 #define sim2D_e 2.718281828459
 
@@ -23,6 +23,21 @@ Function::Function(){
 		std::cout << "Error when initializing function" << std::endl;
 		std::cout << e.GetMsg() << std::endl;
 	}
+/*	cout <<"SymbolicC++ Test" <<endl;
+	 Symbolic alpha("alpha");
+	 Symbolic X, XI, dX, result;
+
+	 X = ( ( cos(alpha), sin(alpha) ),
+	       (-sin(alpha), cos(alpha) ) );
+
+	 cout << X << endl;
+
+	 XI = X[alpha == -alpha]; cout << XI << endl;
+	 dX = df(X, alpha);       cout << dX << endl;
+
+	 result = XI * dX;        cout << result << endl;
+	 result = result[(cos(alpha)^2) == 1 - (sin(alpha)^2)];
+	 cout << result << endl;*/
 }
 void Function::setFunction(std::string function){
 	try{

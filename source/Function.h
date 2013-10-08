@@ -10,7 +10,11 @@
 
 #include <muParser.h>
 
+#include <string>
+#include <iostream>
+#include "symbolicc++.h"
 using namespace mu;
+using namespace std;
 
 #define sim2D_pi 3.141592653589793
 #define sim2D_e 2.718281828459
