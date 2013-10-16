@@ -20,8 +20,6 @@ c_constraint::c_constraint(const rapidjson::Value& d)
 }
 void c_constraint::setConstraint(const rapidjson::Value& d){
 
-
-
 }
 
 

@@ -13,6 +13,7 @@
 #include "Function.h"
 #include "rapidjson/document.h"
 #include <iostream>
+#include <armadillo>
 typedef rapidjson::GenericDocument<rapidjson::UTF8<> > MyJsonDocument;
 
 class c_constraint{
@@ -22,6 +23,7 @@ public:
 	std::string type;
 	double id;
 	Function c_function;
+
 
 	c_constraint(const rapidjson::Value& d);
 
@@ -48,8 +50,7 @@ inline void c_constraint::print(){
 
 class c_absX:public c_constraint{
 public:
-	std::vector<double> sP1;
-	double xGround;
+	arma::vec sP1;
 	double bodyID1;
 
 	c_absX(const rapidjson::Value& d);
@@ -61,8 +62,7 @@ public:
 
 class c_absY:public c_constraint{
 public:
-	std::vector<double> sP1;
-	double yGround;
+	arma::vec sP1;
 	double bodyID1;
 
 
@@ -86,8 +86,8 @@ public:
 
 class c_absDist:public c_constraint{
 public:
-	std::vector<double> sP1;
-	std::vector<double> pGround;
+	arma::vec sP1;
+	arma::vec pGround;
 	double bodyID1;
 
 
@@ -101,8 +101,8 @@ public:
 };
 class c_relX:public c_constraint{
 public:
-	std::vector<double> sP1;
-	std::vector<double> sP2;
+	arma::vec sP1;
+	arma::vec sP2;
 	double bodyID1;
 	double bodyID2;
 
@@ -117,8 +117,8 @@ public:
 
 class c_relY:public c_constraint{
 public:
-	std::vector<double> sP1;
-	std::vector<double> sP2;
+	arma::vec sP1;
+	arma::vec sP2;
 	double bodyID1;
 	double bodyID2;
 
@@ -132,8 +132,8 @@ public:
 };
 class c_relDist:public c_constraint{
 public:
-	std::vector<double> sP1;
-	std::vector<double> sP2;
+	arma::vec sP1;
+	arma::vec sP2;
 	double bodyID1;
 	double bodyID2;
 
@@ -147,8 +147,8 @@ public:
 };
 class c_revJoint:public c_constraint{
 public:
-	std::vector<double> sP1;
-	std::vector<double> sP2;
+	arma::vec sP1;
+	arma::vec sP2;
 	double bodyID1;
 	double bodyID2;
 
@@ -162,12 +162,12 @@ public:
 };
 class c_transJoint:public c_constraint{
 public:
-	std::vector<double> sP1;
-	std::vector<double> sP2;
+	arma::vec sP1;
+	arma::vec sP2;
 	double bodyID1;
 	double bodyID2;
-	std::vector<double> vP1;
-	std::vector<double> vP2;
+	arma::vec vP1;
+	arma::vec vP2;
 
 
 

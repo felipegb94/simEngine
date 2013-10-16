@@ -13,15 +13,21 @@ c_absDist::c_absDist(const rapidjson::Value& d)
 {
 
 	const rapidjson::Value& b = d["Pground"];
+	std::vector<double> pGroundTemp;
 
 	for(rapidjson::SizeType i = 0; i < b.Size(); i++){
-			pGround.push_back(b[i].GetDouble());
+			pGroundTemp.push_back(b[i].GetDouble());
 		}
+	pGround = pGroundTemp;
 
 	const rapidjson::Value& b2 = d["sP1"];
+	std::vector<double> sP1Temp;
+
 	for(rapidjson::SizeType i = 0; i < b2.Size(); i++){
-		sP1.push_back(b2[i].GetDouble());
+		sP1Temp.push_back(b2[i].GetDouble());
 	}
+	sP1 = sP1Temp;
+	std::cout << sP1 << std::cout;
 }
 void c_absDist::setConstraint(const rapidjson::Value& d){
 

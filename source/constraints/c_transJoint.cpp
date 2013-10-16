@@ -16,21 +16,36 @@ c_transJoint::c_transJoint(const rapidjson::Value& d)
 {
 
 	const rapidjson::Value& b = d["sP1"];
+	std::vector<double> sP1Temp;
+
 	for(rapidjson::SizeType i = 0; i < b.Size(); i++){
-		sP1.push_back(b[i].GetDouble());
+		sP1Temp.push_back(b[i].GetDouble());
 	}
+	sP1 = sP1Temp;
+
 	const rapidjson::Value& b2 = d["sP2"];
+	std::vector<double> sP2Temp;
+
 	for(rapidjson::SizeType i = 0; i < b2.Size(); i++){
-		sP2.push_back(b2[i].GetDouble());
+		sP2Temp.push_back(b2[i].GetDouble());
 	}
+	sP2 = sP2Temp;
+
 	const rapidjson::Value& b3 = d["vP1"];
+	std::vector<double> vP1Temp;
+
 	for(rapidjson::SizeType i = 0; i < b3.Size(); i++){
-		vP1.push_back(b3[i].GetDouble());
+		vP1Temp.push_back(b3[i].GetDouble());
 	}
+	vP1 = vP1Temp;
+
 	const rapidjson::Value& b4 = d["vP2"];
+	std::vector<double> vP2Temp;
+
 	for(rapidjson::SizeType i = 0; i < b4.Size(); i++){
-		vP2.push_back(b4[i].GetDouble());
+		vP2Temp.push_back(b4[i].GetDouble());
 	}
+	vP2 = vP2Temp;
 }
 void c_transJoint::setConstraint(const rapidjson::Value& d){
 

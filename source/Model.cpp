@@ -14,9 +14,14 @@
 #include "Model.h"
 #include "jsonParser.h"
 
-Model::Model(MyJsonDocument& d){
+Model::Model(MyJsonDocument& d)
+:gravity("0 -9.81"),
+ name(d["name"].GetString())
+{
+
+
+	std::cout << gravity << std::endl;
 	std::cout << "Creating a model" << endl;
-	name = d["name"].GetString();
 	std::cout << "Model Name: " + name << std::endl;
 
 	const rapidjson::Value& jsonBodies = d["bodies"];

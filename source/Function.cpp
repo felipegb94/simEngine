@@ -24,21 +24,7 @@ Function::Function(){
 		std::cout << "Error when initializing function" << std::endl;
 		std::cout << e.GetMsg() << std::endl;
 	}
-	cout <<"SymbolicC++ Test" <<endl;
-	 Symbolic alpha("alpha");
-	 Symbolic X, XI, dX, result;
 
-	 X = ( ( cos(alpha), sin(alpha) ),
-	       (-sin(alpha), cos(alpha) ) );
-
-	 cout << X << endl;
-
-	 XI = X[alpha == -alpha]; cout << XI << endl;
-	 dX = df(X, alpha);       cout << dX << endl;
-
-	 result = XI * dX;        cout << result << endl;
-	 result = result[(cos(alpha)^2) == 1 - (sin(alpha)^2)];
-	 cout << result << endl;
 }
 void Function::setFunction(std::string function){
 	try{
@@ -59,6 +45,21 @@ double Function::eval(double val){
 }
 void Function::print(){
 	std::cout << p.GetExpr()<<std::endl;
+}
+void Function::testSymbolic(){
+	/**
+	std::cout << "Testing SymbolicC++" <<std::endl;
+	Symbolic zero;
+	std::cout << zero << std::endl;
+	string function = "t^2 + cos(2*t)";
+	Symbolic t("t");
+	Symbolic f = t^2 + cos(2*t) ;
+	//Symbolic f = function;
+
+
+	std::cout << f.subst_all(t==12) <<std::endl;
+	std::cout << df(f,t) <<std::endl;
+	*/
 }
 
 

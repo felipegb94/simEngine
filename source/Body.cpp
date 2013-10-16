@@ -28,11 +28,15 @@ void Body::setBody(const rapidjson::Value& d){
 	//std::cout << d["q0"].GetArray()<<std::endl;
 	const rapidjson::Value& b = d["q0"];
 	const rapidjson::Value& b2 = d["qd0"];
+	vector<double> q0Temp;
+	vector<double> qd0Temp;
 
 	for(rapidjson::SizeType i = 0; i < b.Size(); i++){
-		q0.push_back(b[i].GetDouble());
-		qd0.push_back(b2[i].GetDouble());
+		q0Temp.push_back(b[i].GetDouble());
+		qd0Temp.push_back(b2[i].GetDouble());
 	}
+	q0 = q0Temp;
+	qd0 = qd0Temp;
 
 
 }

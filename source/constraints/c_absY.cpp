@@ -10,13 +10,15 @@
 
 c_absY::c_absY(const rapidjson::Value& d)
 :	c_constraint(d),
- 	yGround(d["yGround"].GetDouble()),
 	bodyID1(d["body1"].GetDouble())
 {
 	const rapidjson::Value& b = d["sP1"];
-		for(rapidjson::SizeType i = 0; i < b.Size(); i++){
-			sP1.push_back(b[i].GetDouble());
-		}
+	std::vector<double> sP1Temp;
+
+	for(rapidjson::SizeType i = 0; i < b.Size(); i++){
+		sP1Temp.push_back(b[i].GetDouble());
+	}
+	sP1 = sP1Temp;
 }
 void c_absY::setConstraint(const rapidjson::Value& d){
 	//yGround = d["yGround"].GetDouble();
@@ -26,8 +28,6 @@ void c_absY::print(){
 
 	c_constraint::print();
 
-	std::cout << "Constraint yGround = ";
-	std::cout << yGround << std::endl;
 	std::cout << "Constraint Body ID1:";
 	std::cout << bodyID1<<std::endl;
 	std::cout << "Constraint sP1 = [";

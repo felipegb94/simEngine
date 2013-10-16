@@ -30,6 +30,8 @@ public:
 	double eval(int numSteps, double stepSize);
 	double eval(double val);
 	void print();
+	void testSymbolic();
+
 
 };
 

@@ -11,6 +11,7 @@
 #include "rapidjson/document.h"
 #include <vector>
 #include <string>
+#include <armadillo>
 using namespace std;
 
 typedef rapidjson::GenericDocument<rapidjson::UTF8<> > MyJsonDocument;
@@ -23,8 +24,8 @@ private:
 	double id;
 	double mass;
 	double jbar;
-	vector<double> q0;
-	vector<double> qd0;
+	arma::vec q0;
+	arma::vec qd0;
 
 public:
 	Body(const rapidjson::Value& d);
@@ -34,8 +35,8 @@ public:
 	double getID(){return id;}
 	double getMass(){return mass;}
 	double getJBar(){return jbar;}
-	vector<double> getQ0(){return q0;}
-	vector<double> getQd0(){return qd0;}
+	arma::vec getQ0(){return q0;}
+	arma::vec getQd0(){return qd0;}
 
 	//Setters
 
@@ -44,8 +45,8 @@ public:
 	void setID(double id){this->id = id;}
 	void setMass(double mass){this->mass = mass;}
 	void setJBar(double jbar){this->jbar = jbar;}
-	void setQ0(vector<double> q0){this->q0 = q0;}
-	void setQd0(vector<double> qd0){this->qd0 = qd0;}
+	void setQ0(arma::vec q0){this->q0 = q0;}
+	void setQd0(arma::vec qd0){this->qd0 = qd0;}
 
 	//Helper
 

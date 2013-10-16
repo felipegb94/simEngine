@@ -16,13 +16,21 @@ c_relX::c_relX(const rapidjson::Value& d)
 {
 
 	const rapidjson::Value& b = d["sP1"];
+	std::vector<double> sP1Temp;
+
 	for(rapidjson::SizeType i = 0; i < b.Size(); i++){
-		sP1.push_back(b[i].GetDouble());
+		sP1Temp.push_back(b[i].GetDouble());
 	}
+	sP1 = sP1Temp;
+
 	const rapidjson::Value& b2 = d["sP2"];
+	std::vector<double> sP2Temp;
+
 	for(rapidjson::SizeType i = 0; i < b2.Size(); i++){
-		sP2.push_back(b2[i].GetDouble());
+		sP2Temp.push_back(b2[i].GetDouble());
 	}
+	sP2 = sP2Temp;
+
 }
 void c_relX::setConstraint(const rapidjson::Value& d){
 
