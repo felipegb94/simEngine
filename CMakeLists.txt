@@ -29,6 +29,7 @@ source/json/parseJSON.cpp
 source/Body.cpp
 source/Function.cpp
 source/Model.cpp
+source/Solver.cpp
 source/myAverageStdDev.cpp
 source/constraints/c_constraint.cpp
 source/constraints/c_absX.cpp 
@@ -47,6 +48,7 @@ source/Body.h
 source/constraints/c_constraint.h
 source/Function.h
 source/Model.h
+source/Solver.h
 source/averageStdDev.h
 )
 

@@ -12,6 +12,7 @@
 #include "Body.h"
 #include "c_constraint.h"
 #include <armadillo>
+#include "Solver.h"
 typedef rapidjson::GenericDocument<rapidjson::UTF8<> > MyJsonDocument;
 
 using namespace arma;
@@ -27,13 +28,21 @@ private:
 	double outputSteps;
 	double stepSize;
 
-	arma::vec phi; //Vector of kinematic and driver constraints
-	arma::mat phi_q; //Jacobian
-	arma::vec nu; //RHS of the velocity linear system
-	arma::vec gamma; //RHS of the acceleration linear system
+	arma::vec qCurr;
+	arma::vec phiCurr;
+	arma::mat phi_qCurr;
+	arma::vec nu;
+	arma::vec gamma;
+	std::vector<arma::vec> q_list;
+	std::vector<arma::vec> phi_list; //List of Vectors of kinematic and driver constraints at each time
+	std::vector<arma::mat> phi_q_list; //List of the Jacobian at each time
+	std::vector<arma::vec> nu_all_list; //List of RHS of the velocity linear system at each time
+	std::vector<arma::vec> gamma_list; //List of RHS of the acceleration linear system at each time
 
 public:
 	vec gravity;
+	double t;
+
 	Model(MyJsonDocument& d);
 	//input could be a json file?
 	const std::vector<Body>& getBodies(){return bodies;}
@@ -47,6 +56,11 @@ public:
 	void setTEnd(double tend){tEnd = tend;}
 	void setOutputSteps(double outputSteps){this->outputSteps = outputSteps;}
 	void setStepSize(double stepSize){this->stepSize = stepSize;}
+
+	/**
+	 * Solvers
+	 */
+	void solve();
 
 };
 #endif /* MODEL_H_ */

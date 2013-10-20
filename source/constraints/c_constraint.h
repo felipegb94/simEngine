@@ -23,6 +23,9 @@ public:
 	std::string type;
 	double id;
 	Function c_function;
+	Function c_dFunction;
+	Function c_ddFunction;
+
 
 
 	c_constraint(const rapidjson::Value& d);
@@ -45,6 +48,10 @@ inline void c_constraint::print(){
 
 	std::cout << "Constraint Function = ";
 	c_function.print() ;
+	std::cout << "Constraint Function Derivative = ";
+	c_dFunction.print() ;
+	std::cout << "Constraint Function Second Derivative = ";
+	c_ddFunction.print() ;
 }
 
 

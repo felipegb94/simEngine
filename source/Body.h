@@ -24,8 +24,12 @@ private:
 	double id;
 	double mass;
 	double jbar;
-	arma::vec q0;
-	arma::vec qd0;
+	arma::vec q;
+	arma::vec qd;
+	arma::vec qdd;
+	arma::mat A;
+	arma::mat B;
+
 
 public:
 	Body(const rapidjson::Value& d);
@@ -35,8 +39,11 @@ public:
 	double getID(){return id;}
 	double getMass(){return mass;}
 	double getJBar(){return jbar;}
-	arma::vec getQ0(){return q0;}
-	arma::vec getQd0(){return qd0;}
+	arma::vec getQ(){return q;}
+	arma::vec getQd(){return qd;}
+	arma::vec getQdd(){return qdd;}
+	arma::mat getA();
+	arma::mat getB();
 
 	//Setters
 
@@ -45,8 +52,8 @@ public:
 	void setID(double id){this->id = id;}
 	void setMass(double mass){this->mass = mass;}
 	void setJBar(double jbar){this->jbar = jbar;}
-	void setQ0(arma::vec q0){this->q0 = q0;}
-	void setQd0(arma::vec qd0){this->qd0 = qd0;}
+	void setQ0(arma::vec q0){this->q = q0;}
+	void setQd0(arma::vec qd0){this->qd = qd0;}
 
 	//Helper
 

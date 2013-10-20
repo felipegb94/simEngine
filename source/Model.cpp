@@ -13,10 +13,13 @@
 #include "rapidjson/document.h"
 #include "Model.h"
 #include "jsonParser.h"
+#include <armadillo>
+
 
 Model::Model(MyJsonDocument& d)
 :gravity("0 -9.81"),
- name(d["name"].GetString())
+ name(d["name"].GetString()),
+ t(0.0)
 {
 
 
@@ -78,6 +81,29 @@ Model::Model(MyJsonDocument& d)
 
 
 	}
+
+}
+void Model::solve(){
+	std::cout << "Solving " + name << std::endl;
+	int maxIterations = 30;
+	double tolerance = 0.00001;
+	//Setting initial conditions for q. Necessary for newton raphson.
+	for(std::vector<int>::size_type i = 0; i < bodies.size();i++){
+		arma::vec temp = bodies.at(i).getQ();
+		qCurr.insert_rows(qCurr.n_elem,temp);
+		std::cout << bodies.at(i).getA() << std::endl;
+		std::cout << bodies.at(i).getB() << std::endl;
+	}
+
+	std::cout << qCurr << std::endl;
+
+	Solver solve;
+
+	for(int i = 0; i < 1; i++){
+		phiCurr = solve.getPhi(&bodies,&constraints,t);
+		phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
+	}
+	nu = solve.getNu(&bodies,&constraints,t);
 
 
 

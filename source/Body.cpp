@@ -35,11 +35,30 @@ void Body::setBody(const rapidjson::Value& d){
 		q0Temp.push_back(b[i].GetDouble());
 		qd0Temp.push_back(b2[i].GetDouble());
 	}
-	q0 = q0Temp;
-	qd0 = qd0Temp;
+	q = q0Temp;
+	qd = qd0Temp;
+	A.zeros(2,2);
+	B.zeros(2,2);
 
 
 }
+
+arma::mat Body::getA(){
+	A(0,0) = cos(q(2));
+	A(0,1) = -sin(q(2));
+	A(1,0) = sin(q(2));
+	A(1,1) = cos(q(2));
+	return A;
+}
+
+arma::mat Body::getB(){
+	B(0,0)=-sin(q(2));
+	B(0,1)=-cos(q(2));
+	B(1,0)=cos(q(2));
+	B(1,1)=-sin(q(2));
+	return B;
+}
+
 void Body::print(){
 	std::cout << "Printing body." <<std::endl;
 	std::cout << "Body ID = ";
@@ -52,14 +71,14 @@ void Body::print(){
 	std::cout << jbar << std::endl;
 	std::cout << "Body q0 = [";
 
-	for(std::vector<int>::size_type i = 0; i != q0.size(); i++){
-		std::cout << q0[i];
+	for(std::vector<int>::size_type i = 0; i != q.size(); i++){
+		std::cout << q[i];
 		std::cout << ",";
 	}
 	std::cout<<"]"<<endl;
 	std::cout << "Body qd0 = [";
-	for(std::vector<int>::size_type i = 0; i != qd0.size(); i++){
-			std::cout << qd0[i];
+	for(std::vector<int>::size_type i = 0; i != qd.size(); i++){
+			std::cout << qd[i];
 			std::cout << ",";
 		}
 	std::cout << "]" <<endl;
