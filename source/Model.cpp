@@ -104,6 +104,11 @@ void Model::solve(){
 		phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
 	}
 	nu = solve.getNu(&bodies,&constraints,t);
+	gamma = solve.getGamma(&bodies,&constraints,t);
+	std::cout<<phiCurr<<std::endl;
+	std::cout<<phi_qCurr<<std::endl;
+	std::cout<<nu<<std::endl;
+	std::cout<<gamma<<std::endl;
 
 
 
