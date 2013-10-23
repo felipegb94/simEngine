@@ -39,6 +39,7 @@ void Body::setBody(const rapidjson::Value& d){
 	qd = qd0Temp;
 	A.zeros(2,2);
 	B.zeros(2,2);
+	start = id + 2*(id -1) - 1;
 
 
 }

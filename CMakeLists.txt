@@ -57,7 +57,7 @@ source/averageStdDev.h
 #add_executable(gutierrez_cpp_03 assignments/assignment3.cpp  ${SOURCE_FILES})
 #target_link_libraries(gutierrez_cpp_03 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
 
-add_executable(gutierrez_cpp_04 assignments/assignment4.cpp  ${SOURCE_FILES})
-target_link_libraries(gutierrez_cpp_04 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
+add_executable(gutierrez_cpp_06 assignments/assignment6.cpp  ${SOURCE_FILES})
+target_link_libraries(gutierrez_cpp_06 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
 
 

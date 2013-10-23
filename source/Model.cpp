@@ -38,13 +38,14 @@ Model::Model(MyJsonDocument& d)
 	}
 
 	const rapidjson::Value& jsonConstraints = d["constraints"];
-	std::cout << "here" <<std::endl;
 	for(int i = 0; i < jsonConstraints.Size(); i++){
 		const rapidjson::Value& v = jsonConstraints[i];
-
+		std::cout << "iteration" << i << std::endl;
 
 		if(std::string(v["type"].GetString()) == "AbsoluteX"){
 			//c_absX cX(v);
+			std::cout << "here" <<std::endl;
+
 			constraints.push_back(new c_absX(v));
 		}
 		else if(std::string(v["type"].GetString()) == "AbsoluteY"){
@@ -86,30 +87,118 @@ Model::Model(MyJsonDocument& d)
 void Model::solve(){
 	std::cout << "Solving " + name << std::endl;
 	int maxIterations = 30;
-	double tolerance = 0.00001;
-	//Setting initial conditions for q. Necessary for newton raphson.
-	for(std::vector<int>::size_type i = 0; i < bodies.size();i++){
-		arma::vec temp = bodies.at(i).getQ();
-		qCurr.insert_rows(qCurr.n_elem,temp);
-		std::cout << bodies.at(i).getA() << std::endl;
-		std::cout << bodies.at(i).getB() << std::endl;
-	}
 
-	std::cout << qCurr << std::endl;
+	//Setting initial conditions for q. Necessary for newton raphson.
+	qCurr = arma::zeros(bodies.size()*3);
+	qdCurr = arma::zeros(bodies.size()*3);
+	for(std::vector<int>::size_type i = 0; i < bodies.size();i++){
+		int index = bodies.at(i).start;
+		arma::vec q0 = bodies.at(i).getQ();
+		arma::vec qd0 = bodies.at(i).getQd();
+		qCurr(index) = q0(0);
+		qCurr(index+1) = q0(1);
+		qCurr(index+2) = q0(2);
+		qdCurr(index) = qd0(0);
+		qdCurr(index+1) = qd0(1);
+		qdCurr(index+2) = qd0(2);
+	}
+	std::cout<<"Initial q = "<<std::endl;
+	std::cout<<qCurr<<std::endl;
 
 	Solver solve;
+	double tolerance = pow(10.0,-8.0);
 
-	for(int i = 0; i < 1; i++){
+	for(int i = 0; i < maxIterations; i++){
 		phiCurr = solve.getPhi(&bodies,&constraints,t);
 		phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
+		arma::vec correction = arma::solve(phi_qCurr,phiCurr);
+		std::cout << "itr" << std::endl;
+		std::cout << arma::norm(correction,2) << std::endl;
+		qCurr = qCurr - correction;
+		for(int i = 0; i < bodies.size(); i++){
+			arma::vec tmp = bodies.at(i).getQ() - correction;
+			bodies.at(i).setQ(tmp);
+		}
+
+		if(arma::norm(correction,2) <= tolerance){
+			break;
+		}
+
+
 	}
 	nu = solve.getNu(&bodies,&constraints,t);
+
+
+	for(int i = 0; i < bodies.size(); i++){
+			arma::vec tmp = arma::zeros(3);
+			tmp(0) = nu(bodies.at(i).start);
+			tmp(1) = nu(bodies.at(i).start+1);
+			tmp(2) = nu(bodies.at(i).start+2);
+
+			std::cout << tmp(2) << std::endl;
+			bodies.at(i).setQd(tmp);
+	}
 	gamma = solve.getGamma(&bodies,&constraints,t);
+	std::cout<<"Phi at t = 0: "<<std::endl;
+
 	std::cout<<phiCurr<<std::endl;
+	std::cout<<"Phi_q at t = 0: "<<std::endl;
+
 	std::cout<<phi_qCurr<<std::endl;
+	std::cout<<"nu at t = 0: "<<std::endl;
+
 	std::cout<<nu<<std::endl;
+	std::cout<<"gamma at t = 0: "<<std::endl;
+
 	std::cout<<gamma<<std::endl;
+	std::cout<<"Part 2b "<<std::endl;
+	double goal = 0.37;
+	for(int i = 0; i <= outputSteps;i++){
+		for(int i = 0; i < maxIterations; i++){
+			phiCurr = solve.getPhi(&bodies,&constraints,t);
+			phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
+			arma::vec correction = arma::solve(phi_qCurr,phiCurr);
+			qCurr = qCurr - correction;
+			for(int i = 0; i < bodies.size(); i++){
+				arma::vec tmp = bodies.at(i).getQ() - correction;
+				bodies.at(i).setQ(tmp);
+			}
+
+			if(arma::norm(correction,2) <= tolerance){
+				break;
+			}
 
 
+		}
+		nu = solve.getNu(&bodies,&constraints,t);
+
+
+		for(int i = 0; i < bodies.size(); i++){
+			arma::vec tmp = arma::zeros(3);
+			tmp(0) = nu(bodies.at(i).start);
+			tmp(1) = nu(bodies.at(i).start+1);
+			tmp(2) = nu(bodies.at(i).start+2);
+
+			bodies.at(i).setQd(tmp);
+		}
+		gamma = solve.getGamma(&bodies,&constraints,t);
+
+
+			std::cout <<t <<std::endl;
+			std::cout<<"Phi at t = "<< t<<std::endl;
+
+			std::cout<<phiCurr<<std::endl;
+			std::cout<<"Phi_q at t =  " << t<<std::endl;
+
+			std::cout<<phi_qCurr<<std::endl;
+			std::cout<<"nu at t ="<<t<<std::endl;
+
+			std::cout<<nu<<std::endl;
+
+
+
+		t+=stepSize;
+
+	}
 
 }

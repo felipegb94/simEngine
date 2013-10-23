@@ -23,12 +23,16 @@ class Function{
 private:
 	Parser p;
 	double t;
+	double x;
+	double y;
 public:
 
 	Function();
 	void setFunction(std::string function);
 	double eval(int numSteps, double stepSize);
 	double eval(double val);
+	double eval2(double xVal,double yVal);
+
 	void print();
 	void testSymbolic();
 

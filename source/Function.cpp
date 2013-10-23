@@ -14,11 +14,12 @@
 
 Function::Function(){
 	try{
-		double pi = sim2D_pi;
 		double e = sim2D_e;
 		p.DefineVar("t", &t);
-		p.DefineVar("pi",&pi);
-		p.DefineVar("e",&e);
+		p.DefineVar("x", &x);
+		p.DefineVar("y", &y);
+		p.DefineConst("pi",sim2D_pi);
+		p.DefineConst("e",sim2D_e);
 
 	}catch(Parser::exception_type &e){
 		std::cout << "Error when initializing function" << std::endl;
@@ -36,11 +37,16 @@ void Function::setFunction(std::string function){
 
 	}
 }
-double Function::eval(int numSteps, double stepSize){
-	return 0;
-}
+
 double Function::eval(double val){
 	t = val;
+
+	return p.Eval();
+}
+
+double Function::eval2(double xVal,double yVal){
+	x = xVal;
+	y = yVal;
 	return p.Eval();
 }
 void Function::print(){

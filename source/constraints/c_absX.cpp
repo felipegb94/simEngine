@@ -15,7 +15,6 @@ c_absX::c_absX(const rapidjson::Value& d)
 	std::vector<double> sP1Temp;
 	for(rapidjson::SizeType i = 0; i < b.Size(); i++){
 		sP1Temp.push_back(b[i].GetDouble());
-
 	}
 	sP1 = sP1Temp;
 }

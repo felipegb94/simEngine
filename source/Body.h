@@ -33,6 +33,7 @@ private:
 
 public:
 	Body(const rapidjson::Value& d);
+	int start;
 
 	//Getters
 	std::string getName(){return name;}
@@ -52,8 +53,8 @@ public:
 	void setID(double id){this->id = id;}
 	void setMass(double mass){this->mass = mass;}
 	void setJBar(double jbar){this->jbar = jbar;}
-	void setQ0(arma::vec q0){this->q = q0;}
-	void setQd0(arma::vec qd0){this->qd = qd0;}
+	void setQ(arma::vec qNew){this->q = qNew;}
+	void setQd(arma::vec qdNew){this->qd = qdNew;}
 
 	//Helper
 

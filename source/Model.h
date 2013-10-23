@@ -29,11 +29,17 @@ private:
 	double stepSize;
 
 	arma::vec qCurr;
+	arma::vec qdCurr;
+	arma::vec qddCurr;
 	arma::vec phiCurr;
 	arma::mat phi_qCurr;
 	arma::vec nu;
 	arma::vec gamma;
 	std::vector<arma::vec> q_list;
+	std::vector<arma::vec> qd_list;
+	std::vector<arma::vec> qdd_list;
+
+
 	std::vector<arma::vec> phi_list; //List of Vectors of kinematic and driver constraints at each time
 	std::vector<arma::mat> phi_q_list; //List of the Jacobian at each time
 	std::vector<arma::vec> nu_all_list; //List of RHS of the velocity linear system at each time
