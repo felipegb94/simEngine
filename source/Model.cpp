@@ -9,7 +9,6 @@
 #include <vector>
 #include <iostream>
 #include "c_constraint.h"
-
 #include "rapidjson/document.h"
 #include "Model.h"
 #include "jsonParser.h"
@@ -91,6 +90,7 @@ void Model::solve(){
 	//Setting initial conditions for q. Necessary for newton raphson.
 	qCurr = arma::zeros(bodies.size()*3);
 	qdCurr = arma::zeros(bodies.size()*3);
+	qddCurr = arma::zeros(bodies.size()*3);
 	for(std::vector<int>::size_type i = 0; i < bodies.size();i++){
 		int index = bodies.at(i).start;
 		arma::vec q0 = bodies.at(i).getQ();
@@ -108,53 +108,12 @@ void Model::solve(){
 	Solver solve;
 	double tolerance = pow(10.0,-8.0);
 
-	for(int i = 0; i < maxIterations; i++){
-		phiCurr = solve.getPhi(&bodies,&constraints,t);
-		phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
-		arma::vec correction = arma::solve(phi_qCurr,phiCurr);
-		std::cout << "itr" << std::endl;
-		std::cout << arma::norm(correction,2) << std::endl;
-		qCurr = qCurr - correction;
-		for(int i = 0; i < bodies.size(); i++){
-			arma::vec tmp = bodies.at(i).getQ() - correction;
-			bodies.at(i).setQ(tmp);
-		}
 
-		if(arma::norm(correction,2) <= tolerance){
-			break;
-		}
-
-
-	}
-	nu = solve.getNu(&bodies,&constraints,t);
-
-
-	for(int i = 0; i < bodies.size(); i++){
-			arma::vec tmp = arma::zeros(3);
-			tmp(0) = nu(bodies.at(i).start);
-			tmp(1) = nu(bodies.at(i).start+1);
-			tmp(2) = nu(bodies.at(i).start+2);
-
-			std::cout << tmp(2) << std::endl;
-			bodies.at(i).setQd(tmp);
-	}
-	gamma = solve.getGamma(&bodies,&constraints,t);
-	std::cout<<"Phi at t = 0: "<<std::endl;
-
-	std::cout<<phiCurr<<std::endl;
-	std::cout<<"Phi_q at t = 0: "<<std::endl;
-
-	std::cout<<phi_qCurr<<std::endl;
-	std::cout<<"nu at t = 0: "<<std::endl;
-
-	std::cout<<nu<<std::endl;
-	std::cout<<"gamma at t = 0: "<<std::endl;
-
-	std::cout<<gamma<<std::endl;
 	std::cout<<"Part 2b "<<std::endl;
 	double goal = 0.37;
 	for(int i = 0; i <= outputSteps;i++){
 		for(int i = 0; i < maxIterations; i++){
+
 			phiCurr = solve.getPhi(&bodies,&constraints,t);
 			phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
 			arma::vec correction = arma::solve(phi_qCurr,phiCurr);
@@ -163,40 +122,45 @@ void Model::solve(){
 				arma::vec tmp = bodies.at(i).getQ() - correction;
 				bodies.at(i).setQ(tmp);
 			}
+			//phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
+
 
 			if(arma::norm(correction,2) <= tolerance){
 				break;
 			}
 
-
 		}
+		q_list.push_back(qCurr);
+		phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
+
 		nu = solve.getNu(&bodies,&constraints,t);
 
 
 		for(int i = 0; i < bodies.size(); i++){
 			arma::vec tmp = arma::zeros(3);
 			tmp(0) = nu(bodies.at(i).start);
+			qdCurr(bodies.at(i).start) = tmp(0);
 			tmp(1) = nu(bodies.at(i).start+1);
+			qdCurr(bodies.at(i).start+1) = tmp(1);
 			tmp(2) = nu(bodies.at(i).start+2);
-
+			qdCurr(bodies.at(i).start+2) = tmp(2);
 			bodies.at(i).setQd(tmp);
 		}
+		qd_list.push_back(qdCurr);
+
 		gamma = solve.getGamma(&bodies,&constraints,t);
 
-
-			std::cout <<t <<std::endl;
-			std::cout<<"Phi at t = "<< t<<std::endl;
-
-			std::cout<<phiCurr<<std::endl;
-			std::cout<<"Phi_q at t =  " << t<<std::endl;
-
-			std::cout<<phi_qCurr<<std::endl;
-			std::cout<<"nu at t ="<<t<<std::endl;
-
-			std::cout<<nu<<std::endl;
-
-
-
+		for(int i = 0; i < bodies.size(); i++){
+			arma::vec tmp = arma::zeros(3);
+			tmp(0) = gamma(bodies.at(i).start);
+			qddCurr(bodies.at(i).start) = tmp(0);
+			tmp(1) = gamma(bodies.at(i).start+1);
+			qddCurr(bodies.at(i).start) = tmp(0);
+			tmp(2) = gamma(bodies.at(i).start+2);
+			qddCurr(bodies.at(i).start) = tmp(0);
+			bodies.at(i).setQdd(tmp);
+		}
+		qdd_list.push_back(qddCurr);
 		t+=stepSize;
 
 	}

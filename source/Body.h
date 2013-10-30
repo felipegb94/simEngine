@@ -55,6 +55,8 @@ public:
 	void setJBar(double jbar){this->jbar = jbar;}
 	void setQ(arma::vec qNew){this->q = qNew;}
 	void setQd(arma::vec qdNew){this->qd = qdNew;}
+	void setQdd(arma::vec qddNew){this->qdd = qddNew;}
+
 
 	//Helper
 

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <armadillo>
-
+#include <boost>
 #include "jsonParser.h"
 #include "rapidjson/document.h"
 #include "Body.h"
@@ -47,7 +47,6 @@ int main(int argc, char** argv){
 
 	MyJsonDocument d = parseJSON("input.acf");
 
-	//static const char* kTypeNames[] = { "Null", "False", "True", "Object", "Array", "String", "Number" };
 	string simulation = string(d["simulation"].GetString());
 	double tend = d["tend"].GetDouble();
 	double stepSize = d["stepSize"].GetDouble();
@@ -77,16 +76,11 @@ int main(int argc, char** argv){
 
 		}
 	}
-	//m.getConstraints().at(1)->print();
 
 
 	vector<c_constraint*> constraints = m.getConstraints();
 	for(std::vector<int>::size_type i = 0; i != constraints.size(); i++) {
-		/**
-		if( constraints[i].name == "abs_x"){
-			//c_absX tmpX = (c_absX)constraints[i];
-			cout << tmpX.xGround <<endl;
-		}*/
+
 		if(constraints[i]->id == constraintID){
 			cout <<"Constraint ID specified: ";
 			cout << constraints[i] -> id <<endl;
@@ -105,10 +99,8 @@ int main(int argc, char** argv){
 
 
   return 0;
-  }
-void runme(double bodyID, double constraintID){
-	cout<<"running run me"<<endl;
-}
+ }
+
 
 
 

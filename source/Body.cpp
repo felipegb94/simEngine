@@ -37,6 +37,7 @@ void Body::setBody(const rapidjson::Value& d){
 	}
 	q = q0Temp;
 	qd = qd0Temp;
+	qdd = arma::zeros(3);
 	A.zeros(2,2);
 	B.zeros(2,2);
 	start = id + 2*(id -1) - 1;

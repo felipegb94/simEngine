@@ -8,6 +8,10 @@
 #ifndef JSONPARSER_H_
 #define JSONPARSER_H_
 #include "rapidjson/document.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
 
 rapidjson::Document parseJSON(std::string filename);
 

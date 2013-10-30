@@ -1,7 +1,7 @@
 /*
- * assignment6.cpp
+ * assignment7.cpp
  *
- *  Created on: Oct 23, 2013
+ *  Created on: Oct 29, 2013
  *      Author: pipe
  */
 
@@ -20,6 +20,10 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/stringbuffer.h"
+
+using namespace rapidjson;
 
 
 
@@ -27,86 +31,17 @@ using namespace std;
 
 int main(int argc, char** argv){
 	arma::wall_clock timer; //Keeps track of how much time my program is taking to run.
-	timer.tic();
+
 	system( "python ../../repos/simEngine/python/updateJSON.py" );
+	timer.tic();
 
 	cout << "In this program I'm assuming that the given json model.adm file will follow a certain format, where keys will have an expected name." <<endl;
-
-	cout << "If no information is displaying after this line that means that you didn't input the two integer arguments for bodyID and constraintID." <<endl;
+	//cout << "If no information is displaying after this line that means that you didn't input the two integer arguments for bodyID and constraintID." <<endl;
 	//double constraintID = double(atof(argv[1]));
 
 	cout << "Start of Assignment" <<endl;
 
-	cout << "Part 1. " << endl;
 
-	Function x;
-	x.setFunction("(3*x) + sin(x*y) - 4");
-	Function y;
-	y.setFunction("x - exp(cos(y))");
-
-	Function x1;
-	x1.setFunction("3 + y*cos(x*y)");
-	x1.print();
-	Function y1;
-	y1.setFunction("x*cos(x*y)");
-	y1.print();
-	Function x2;
-	x2.setFunction("1");
-	x2.print();
-	Function y2;
-	y2.setFunction("sin(y) * exp(cos(y))");
-	y2.print();
-
-
-	arma::vec q = zeros(2);
-	q(0) = 1.5;
-	q(1) = 1.5;
-
-	arma::vec phi = arma::zeros(2);
-	arma::mat phi_q = arma::zeros(2,2);
-
-
-	double tolerance = pow(10.0,-8.0);
-	arma::vec qTemp;
-	qTemp = q;
-	cout << "Initial Guess:  q = " << endl;
-	cout << q << endl;
-
-
-	for(int i = 0 ; i < 10; i++){
-		cout << "Iteration ";
-		cout << i << endl;
-
-
-		phi(0) = x.eval2(qTemp(0),qTemp(1));
-		phi(1) = y.eval2(qTemp(0),qTemp(1));
-		phi_q(0,0) = x1.eval2(qTemp(0),qTemp(1));
-		phi_q(0,1) = y1.eval2(qTemp(0),qTemp(1));
-		phi_q(1,0) = x2.eval2(qTemp(0),qTemp(1));
-		phi_q(1,1) = y2.eval2(qTemp(0),qTemp(1));
-
-		arma::vec correction = arma::solve(phi_q,phi);
-		std::cout << "q = " << std::endl;
-
-		qTemp = qTemp - correction;
-		std::cout << qTemp << std::endl;
-
-		std::cout << "Correction = ";
-		std::cout << arma::norm(correction,2) << std::endl;
-
-		if(arma::norm(correction,2) <= tolerance){
-			q = qTemp;
-			break;
-		}
-	}
-	cout << " " << endl;
-	cout << " " << endl;
-	cout << "" << endl;
-	cout << "took " << timer.toc() << " seconds for part 1" << endl;
-
-	cout << "Part 2. " << endl;
-
-	timer.tic();
 	MyJsonDocument d = parseJSON("models/simplePend.acf");
 
 	string simulation = string(d["simulation"].GetString());
@@ -146,8 +81,61 @@ int main(int argc, char** argv){
 
 	m.solve();
 
+	std::vector<arma::vec> q = m.getQList();
+	std::vector<arma::vec> qd = m.getQdList();
+	std::vector<arma::vec> qdd = m.getQddList();
+
+	double xAccPlot[2][(int)m.getOutputSteps()];
+	double trajectoryPlot[2][(int)m.getOutputSteps()];
+
+	Document doc;
+	doc.SetObject();
+	rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
+
+	Value plot1(kArrayType);
+	Value plot1X(kArrayType);
+    Value plot1Y(kArrayType);
+	Value plot2(kArrayType);
+	Value plot2X(kArrayType);
+    Value plot2Y(kArrayType);
+
+	for(int i = 0; i <= m.getOutputSteps(); i++){
+		xAccPlot[0][i] = m.getStepSize()*i;
+		xAccPlot[1][i] = qdd.at(i)(0);
+
+		plot1X.PushBack(xAccPlot[0][i],allocator);
+		plot1Y.PushBack(xAccPlot[1][i],allocator);
 
 
+		trajectoryPlot[0][i] = q.at(i)(0);
+		trajectoryPlot[1][i] = q.at(i)(1);
+		plot2X.PushBack(trajectoryPlot[0][i],allocator);
+		plot2Y.PushBack(trajectoryPlot[1][i],allocator);
+
+	}
+	plot1.PushBack(plot1X,allocator);
+	plot1.PushBack(plot1Y,allocator);
+	plot2.PushBack(plot2X,allocator);
+	plot2.PushBack(plot2Y,allocator);
+
+	doc.AddMember("Plot1",plot1,allocator);
+	doc.AddMember("Plot2",plot2,allocator);
+
+	StringBuffer strbuf;
+	Writer<StringBuffer> writer(strbuf);
+	doc.Accept(writer);
+
+    std::string plotsData = strbuf.GetString();
+
+
+	ofstream dataFile ("plots/data.json");
+	if (dataFile.is_open()){
+	    dataFile << plotsData;
+	    dataFile.close();
+	}
+	else cout << "Unable to open file";
+
+	system( "python ../../repos/simEngine/python/plot2D.py" );
 
 
 	cout << "took " << timer.toc() << " seconds for part 2" << endl;
@@ -155,4 +143,4 @@ int main(int argc, char** argv){
 
 
   return 0;
-  }
+}

@@ -35,6 +35,7 @@ private:
 	arma::mat phi_qCurr;
 	arma::vec nu;
 	arma::vec gamma;
+
 	std::vector<arma::vec> q_list;
 	std::vector<arma::vec> qd_list;
 	std::vector<arma::vec> qdd_list;
@@ -42,7 +43,7 @@ private:
 
 	std::vector<arma::vec> phi_list; //List of Vectors of kinematic and driver constraints at each time
 	std::vector<arma::mat> phi_q_list; //List of the Jacobian at each time
-	std::vector<arma::vec> nu_all_list; //List of RHS of the velocity linear system at each time
+	std::vector<arma::vec> nu_list; //List of RHS of the velocity linear system at each time
 	std::vector<arma::vec> gamma_list; //List of RHS of the acceleration linear system at each time
 
 public:
@@ -62,6 +63,14 @@ public:
 	void setTEnd(double tend){tEnd = tend;}
 	void setOutputSteps(double outputSteps){this->outputSteps = outputSteps;}
 	void setStepSize(double stepSize){this->stepSize = stepSize;}
+
+	double getOutputSteps(){return this->outputSteps;}
+	double getStepSize(){return this->stepSize;}
+	const std::vector<arma::vec>& getQList(){return q_list;}
+	const std::vector<arma::vec>& getQdList(){return qd_list;}
+	const std::vector<arma::vec>& getQddList(){return qdd_list;}
+
+
 
 	/**
 	 * Solvers

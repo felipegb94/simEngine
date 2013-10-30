@@ -4,15 +4,12 @@
  *  Created on: Sep 23, 2013
  *      Author: pipe
  */
-#include <iostream>
-#include <fstream>
-#include "../includes/rapidjson/document.h"
-#include <vector>
-#include <string>
-#include "jsonParser.h"
-//#include "Symbolic/headers/symbolic/symbolicc++.h"
 
+//#include "Symbolic/headers/symbolic/symbolicc++.h"
+#include "../includes/rapidjson/document.h"
+#include "jsonParser.h"
 using namespace std;
+
 
 /**
  * The following function makes use of the rapidjson library to parse a json string that is

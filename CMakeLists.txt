@@ -4,7 +4,6 @@ project (simEngine)
 # Using Armadillo
 find_package( Armadillo REQUIRED )
 
-
 find_library(MUPARSER_LIBRARY
              NAMES muparser
              DOC "The muParser binary" REQUIRED)
@@ -16,6 +15,7 @@ find_path(MUPARSER_INCLUDE_DIR
 
 include_directories(
 ${ARMADILLO_INCLUDE_DIRS} 
+${BOOST_INCLUDE_DIRS}
 ${MUPARSER_INCLUDE_DIR} 
 ${CMAKE_SOURCE_DIR}/includes/
 ${CMAKE_SOURCE_DIR}/includes/rapidjson/
@@ -57,7 +57,7 @@ source/averageStdDev.h
 #add_executable(gutierrez_cpp_03 assignments/assignment3.cpp  ${SOURCE_FILES})
 #target_link_libraries(gutierrez_cpp_03 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
 
-add_executable(gutierrez_cpp_06 assignments/assignment6.cpp  ${SOURCE_FILES})
-target_link_libraries(gutierrez_cpp_06 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
+add_executable(gutierrez_cpp_07 assignments/assignment7.cpp  ${SOURCE_FILES})
+target_link_libraries(gutierrez_cpp_07 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
 
 

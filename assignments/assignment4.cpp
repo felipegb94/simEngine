@@ -26,7 +26,6 @@ using namespace std;
 
 int main(int argc, char** argv){
 
-	//system( "python python/test.py" );
 	//arma::vec x = arma::zeros(10);
 	//x.fill(arma::datum::pi);
 	//cout << arma::cos(2*x) << endl;
