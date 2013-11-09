@@ -24,8 +24,7 @@ void Body::setBody(const rapidjson::Value& d){
 	id = d["id"].GetDouble();
 	jbar = d["jbar"].GetDouble();
 	mass = d["mass"].GetDouble();
-	//std::cout << d["q0"].GetType()<<std::endl;
-	//std::cout << d["q0"].GetArray()<<std::endl;
+
 	const rapidjson::Value& b = d["q0"];
 	const rapidjson::Value& b2 = d["qd0"];
 	vector<double> q0Temp;

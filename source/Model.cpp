@@ -101,10 +101,12 @@ void Model::solve(){
 		qdCurr(index) = qd0(0);
 		qdCurr(index+1) = qd0(1);
 		qdCurr(index+2) = qd0(2);
+		std::cout << qdCurr <<std::endl;
 	}
 	std::cout<<"Initial q = "<<std::endl;
 	std::cout<<qCurr<<std::endl;
-
+	q_list.push_back(qCurr);
+	qd_list.push_back(qdCurr);
 	Solver solve;
 	double tolerance = pow(10.0,-8.0);
 
@@ -115,11 +117,19 @@ void Model::solve(){
 		for(int i = 0; i < maxIterations; i++){
 
 			phiCurr = solve.getPhi(&bodies,&constraints,t);
+
+
 			phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
+
 			arma::vec correction = arma::solve(phi_qCurr,phiCurr);
+
 			qCurr = qCurr - correction;
+
 			for(int i = 0; i < bodies.size(); i++){
-				arma::vec tmp = bodies.at(i).getQ() - correction;
+				arma::vec tmp = arma::zeros(3);
+				tmp(0) = qCurr(bodies.at(i).start);
+				tmp(1) = qCurr(bodies.at(i).start+1);
+				tmp(2) = qCurr(bodies.at(i).start+2);
 				bodies.at(i).setQ(tmp);
 			}
 			//phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
@@ -131,38 +141,105 @@ void Model::solve(){
 
 		}
 		q_list.push_back(qCurr);
-		phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
+		//phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
 
 		nu = solve.getNu(&bodies,&constraints,t);
-
-
+		qdCurr = arma::solve(phi_qCurr,nu);
+		qd_list.push_back(qdCurr);
 		for(int i = 0; i < bodies.size(); i++){
 			arma::vec tmp = arma::zeros(3);
-			tmp(0) = nu(bodies.at(i).start);
-			qdCurr(bodies.at(i).start) = tmp(0);
-			tmp(1) = nu(bodies.at(i).start+1);
-			qdCurr(bodies.at(i).start+1) = tmp(1);
-			tmp(2) = nu(bodies.at(i).start+2);
-			qdCurr(bodies.at(i).start+2) = tmp(2);
+			tmp(0) = qdCurr(bodies.at(i).start);
+			tmp(1) = qdCurr(bodies.at(i).start+1);
+			tmp(2) = qdCurr(bodies.at(i).start+2);
 			bodies.at(i).setQd(tmp);
 		}
-		qd_list.push_back(qdCurr);
 
 		gamma = solve.getGamma(&bodies,&constraints,t);
+		qddCurr = arma::solve(phi_qCurr,gamma);
 
 		for(int i = 0; i < bodies.size(); i++){
 			arma::vec tmp = arma::zeros(3);
-			tmp(0) = gamma(bodies.at(i).start);
-			qddCurr(bodies.at(i).start) = tmp(0);
-			tmp(1) = gamma(bodies.at(i).start+1);
-			qddCurr(bodies.at(i).start) = tmp(0);
-			tmp(2) = gamma(bodies.at(i).start+2);
-			qddCurr(bodies.at(i).start) = tmp(0);
+			tmp(0) = qddCurr(bodies.at(i).start);
+			tmp(1) = qddCurr(bodies.at(i).start+1);
+			tmp(2) = qddCurr(bodies.at(i).start+2);
 			bodies.at(i).setQdd(tmp);
 		}
 		qdd_list.push_back(qddCurr);
 		t+=stepSize;
 
 	}
+
+}
+const std::vector<arma::vec>& Model::getQList(int bodyID, double spX, double spY){
+	this->qp_list = this->q_list;
+	Body b = bodies.at(bodyID - 1);
+	std:: cout << "start" << b.start << std::endl;
+
+
+	for(int i = 0; i < qp_list.size();i++){
+
+		arma::vec r(2);
+		r(0) = qp_list.at(i)(b.start);
+		r(1) = qp_list.at(i)(b.start+1);
+		arma::vec temp(3);
+		temp(0) = r(0);
+		temp(1) = r(1);
+
+
+
+		double anglePhi = qp_list.at(i)(b.start+2);
+		temp(2) = anglePhi;
+		std::cout << temp << std::endl;
+
+		double sine = sin(anglePhi);
+		double cosine = cos(anglePhi);
+
+	}
+
+	return qp_list;
+}
+const std::vector<arma::vec>& Model::getQdList(int bodyID, double spX, double spY){
+	this->qdp_list = this->qd_list;
+	Body b = bodies.at(bodyID - 1);
+	std:: cout << "start" << b.start << std::endl;
+
+
+	for(int i = 0; i < qdp_list.size();i++){
+		arma::vec rd(2);
+		rd(0) = qdp_list.at(i)(b.start);
+		rd(1) = qdp_list.at(i)(b.start+1);
+		double anglePhi = qp_list.at(i)(b.start+2);
+		double anglePhid = qdp_list.at(i)(b.start+2);
+		double sine = sin(anglePhi);
+		double cosine = cos(anglePhi);
+		qdp_list.at(i)(b.start) = rd(0) - (sine*spX)*anglePhid - (cosine*spY)*anglePhid;
+		qdp_list.at(i)(b.start+1) = rd(1) + (cosine*spX)*anglePhid - (sine*spY)*anglePhid;
+
+	}
+	return qdp_list;
+
+}
+const std::vector<arma::vec>& Model::getQddList(int bodyID, double spX, double spY){
+	this->qddp_list = this->qdd_list;
+	Body b = bodies.at(bodyID - 1);
+	std:: cout << "start" << b.start << std::endl;
+
+
+	for(int i = 0; i < qddp_list.size();i++){
+		arma::vec rdd(2);
+		rdd(0) = qddp_list.at(i)(b.start);
+		rdd(1) = qddp_list.at(i)(b.start+1);
+		double anglePhi = qp_list.at(i)(b.start+2);
+		double anglePhid = qdp_list.at(i)(b.start+2);
+		double anglePhidd = qddp_list.at(i)(b.start+2);
+
+		double sine = sin(anglePhi);
+		double cosine = cos(anglePhi);
+
+		qddp_list.at(i)(b.start) = rdd(0) - cosine*spX*anglePhid*anglePhid - sine*spX*anglePhidd + sine*spY*anglePhid*anglePhid - cosine*spY*anglePhidd;
+		qddp_list.at(i)(b.start+1) = rdd(1) - sine*spX*anglePhid*anglePhid + cosine*spX*anglePhidd - cosine*spY*anglePhid*anglePhid - sine*spY*anglePhidd;
+
+	}
+	return qddp_list;
 
 }

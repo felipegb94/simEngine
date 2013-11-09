@@ -6,27 +6,30 @@ dataFilePath = "plots/data.json"
 dataFile = open(dataFilePath, "r")
 data = json.load(dataFile)
 dataFile.close()
-
-plot1 = data["Plot1"]
-plot2 = data["Plot2"]
-x1Data = plot1[0]
-x2Data = plot2[0]
-
-y1Data = plot1[1]
-y2Data = plot2[1]
-plot1Name = "plot1.png"
-plt.plot(x1Data, y1Data)
-plt.xlabel("Time")
-plt.ylabel("Acceleration")
-plt.figure(1)
-plt.savefig("plots/"+plot1Name)
-plt.clf()
-plot2Name = "plot2.png"
-plt.plot(x2Data,y2Data)
-plt.xlabel("x")
-plt.ylabel("y")
-plt.axis('equal')
-plt.savefig("plots/"+plot2Name)
-
+print len(data)
+i = 1
+while i < len(data)+1:
+    yLabel = ""
+    if i == 1:
+        yLabel = "xVelocity (m/s)"
+    elif i == 2:
+        yLabel = "yVelocity (m/s)"
+    elif i == 3:
+        yLabel = "xAcceleration(m/s^2)"
+    elif i == 3:
+        yLabel = "yAcceleration(m/s^2)"
+    plotName = "Plot"+str(i)
+    plot = data[plotName]
+    xData = plot[0]
+    print len(xData)
+    yData = plot[1]
+    plotFileName = plotName+".png"
+    i+=1  
+    plt.plot(xData,yData)
+    plt.xlabel("Time")
+    plt.ylabel(yLabel)
+    plt.savefig("plots/"+plotName)
+    plt.clf()
+    
 
 print "ALMOST DONE"

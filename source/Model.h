@@ -40,6 +40,11 @@ private:
 	std::vector<arma::vec> qd_list;
 	std::vector<arma::vec> qdd_list;
 
+	std::vector<arma::vec> qp_list;
+	std::vector<arma::vec> qdp_list;
+	std::vector<arma::vec> qddp_list;
+
+
 
 	std::vector<arma::vec> phi_list; //List of Vectors of kinematic and driver constraints at each time
 	std::vector<arma::mat> phi_q_list; //List of the Jacobian at each time
@@ -67,8 +72,14 @@ public:
 	double getOutputSteps(){return this->outputSteps;}
 	double getStepSize(){return this->stepSize;}
 	const std::vector<arma::vec>& getQList(){return q_list;}
+	const std::vector<arma::vec>& getQList(int bodyID, double spX, double spY);
+
 	const std::vector<arma::vec>& getQdList(){return qd_list;}
+	const std::vector<arma::vec>& getQdList(int bodyID, double spX, double spY);
+
 	const std::vector<arma::vec>& getQddList(){return qdd_list;}
+	const std::vector<arma::vec>& getQddList(int bodyID, double spX, double spY);
+
 
 
 

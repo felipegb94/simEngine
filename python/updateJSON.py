@@ -7,7 +7,7 @@ import string
 admFileName = raw_input("Enter adm file name: ")
 if ".adm" not in admFileName:
     admFileName = admFileName+".adm"
-admFilePath = "../../builds/simEngine/models/"+admFileName
+admFilePath = "models/"+admFileName
 admFile = open(admFilePath, "r")
 data = json.load(admFile)
 admFile.close()
@@ -17,7 +17,6 @@ funString = ""
 dfunString = ""
 ddfunString = ""
 t = sympy.var("t")
-data["constraints"][0]["dfun"] = "hello world"
 
 counter = 0
 for constraint in constraints:
@@ -27,6 +26,9 @@ for constraint in constraints:
     if(funString == "NONE"):
         dfunString = "0"
         ddfunString = "0"
+        data["constraints"][counter]["dfun"] = dfunString
+        data["constraints"][counter]["ddfun"] = ddfunString
+        counter = counter+1
     else:
         fun = sympy.sympify(funString)
         dfun = sympy.diff(fun,t)

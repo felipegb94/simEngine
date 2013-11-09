@@ -26,6 +26,7 @@ ${CMAKE_SOURCE_DIR}/source/json/
 )
 SET (SOURCE_FILES 
 source/json/parseJSON.cpp
+source/json/jsonFunctions.cpp
 source/Body.cpp
 source/Function.cpp
 source/Model.cpp
@@ -44,6 +45,7 @@ source/constraints/c_transJoint.cpp
 )
 SET (INCLUDE_FILES
 source/json/jsonParser.h
+source/json/jsonFunctions.h
 source/Body.h
 source/constraints/c_constraint.h
 source/Function.h
@@ -57,7 +59,7 @@ source/averageStdDev.h
 #add_executable(gutierrez_cpp_03 assignments/assignment3.cpp  ${SOURCE_FILES})
 #target_link_libraries(gutierrez_cpp_03 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
 
-add_executable(gutierrez_cpp_07 assignments/assignment7.cpp  ${SOURCE_FILES})
-target_link_libraries(gutierrez_cpp_07 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
+add_executable(gutierrez_cpp_project1 assignments/project1.cpp  ${SOURCE_FILES})
+target_link_libraries(gutierrez_cpp_project1 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
 
 

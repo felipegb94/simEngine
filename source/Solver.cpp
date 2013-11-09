@@ -369,7 +369,7 @@ arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,
 		revoluteComponents(0) = (x1 + (sP1(0)*cosine1) - (sP1(1)*sine1)) -
 				(x2 + (sP2(0)*cosine2) - (sP2(1)*sine2));
 		revoluteComponents(1)= (y1 + (sP1(0)*sine1) + (sP1(1)*cosine1)) -
-				(y2 + (sP2(0)*sine2) + (sP2(1)*cosine2));
+				(y2 + (sP2(0)*sine2) - (sP2(1)*cosine2));
 	}
 	else if(flags == 2){
 		revoluteComponents(0) = 0;
