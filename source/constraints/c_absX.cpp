@@ -18,9 +18,7 @@ c_absX::c_absX(const rapidjson::Value& d)
 	}
 	sP1 = sP1Temp;
 }
-void c_absX::setConstraint(const rapidjson::Value& d){
 
-}
 void c_absX::print(){
 
 	c_constraint::print();

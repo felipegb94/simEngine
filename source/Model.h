@@ -11,6 +11,7 @@
 #include <string>
 #include "Body.h"
 #include "c_constraint.h"
+#include "f_force.h"
 #include <armadillo>
 #include "Solver.h"
 typedef rapidjson::GenericDocument<rapidjson::UTF8<> > MyJsonDocument;
@@ -23,6 +24,7 @@ private:
 	std::string name;
 	std::vector<Body> bodies;
 	std::vector<c_constraint*> constraints;
+	std::vector<f_force*> forces;
 	std::string simulationType;
 	double tEnd;
 	double outputSteps;

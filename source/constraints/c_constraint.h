@@ -32,7 +32,6 @@ public:
 
 	virtual ~c_constraint(){};
 
-	void setConstraint(const rapidjson::Value& d);
 	virtual void print() = 0 ;
 
 };

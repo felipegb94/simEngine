@@ -35,6 +35,7 @@ public:
 
 	void print();
 	void testSymbolic();
+	std::string getString();
 
 
 };

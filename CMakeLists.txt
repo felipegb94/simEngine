@@ -22,6 +22,7 @@ ${CMAKE_SOURCE_DIR}/includes/rapidjson/
 ${CMAKE_SOURCE_DIR}/includes/symbolic_cpp/
 ${CMAKE_SOURCE_DIR}/source/
 ${CMAKE_SOURCE_DIR}/source/constraints/
+${CMAKE_SOURCE_DIR}/source/forces/
 ${CMAKE_SOURCE_DIR}/source/json/
 )
 SET (SOURCE_FILES 
@@ -42,6 +43,10 @@ source/constraints/c_relY.cpp
 source/constraints/c_relDist.cpp 
 source/constraints/c_revJoint.cpp 
 source/constraints/c_transJoint.cpp
+source/forces/f_force.cpp
+source/forces/f_pointForce.cpp
+source/forces/f_torque.cpp
+
 )
 SET (INCLUDE_FILES
 source/json/jsonParser.h
@@ -52,6 +57,7 @@ source/Function.h
 source/Model.h
 source/Solver.h
 source/averageStdDev.h
+source/forces/f_force.h
 )
 
 
@@ -59,7 +65,7 @@ source/averageStdDev.h
 #add_executable(gutierrez_cpp_03 assignments/assignment3.cpp  ${SOURCE_FILES})
 #target_link_libraries(gutierrez_cpp_03 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
 
-add_executable(gutierrez_cpp_project1 assignments/project1.cpp  ${SOURCE_FILES})
-target_link_libraries(gutierrez_cpp_project1 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
+add_executable(gutierrez_cpp_08 assignments/assignment8.cpp  ${SOURCE_FILES})
+target_link_libraries(gutierrez_cpp_08 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
 
 

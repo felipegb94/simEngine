@@ -43,7 +43,6 @@ Model::Model(MyJsonDocument& d)
 
 		if(std::string(v["type"].GetString()) == "AbsoluteX"){
 			//c_absX cX(v);
-			std::cout << "here" <<std::endl;
 
 			constraints.push_back(new c_absX(v));
 		}
@@ -78,7 +77,20 @@ Model::Model(MyJsonDocument& d)
 			constraints.push_back(new c_transJoint(v));
 		}
 
+	}
 
+	const rapidjson::Value& jsonForces = d["forces"];
+	std::cout << "here" <<std::endl;
+
+	for(int i = 0; i < jsonForces.Size(); i++){
+		const rapidjson::Value& v = jsonForces[i];
+		std::cout << "iteration" << i << std::endl;
+		if(std::string(v["type"].GetString()) == "PointForce"){
+			forces.push_back(new f_pointForce(v));
+		}
+		else if(std::string(v["type"].GetString()) == "Torque"){
+			forces.push_back(new f_torque(v));
+		}
 
 	}
 
@@ -181,15 +193,11 @@ const std::vector<arma::vec>& Model::getQList(int bodyID, double spX, double spY
 		arma::vec r(2);
 		r(0) = qp_list.at(i)(b.start);
 		r(1) = qp_list.at(i)(b.start+1);
-		arma::vec temp(3);
-		temp(0) = r(0);
-		temp(1) = r(1);
+
 
 
 
 		double anglePhi = qp_list.at(i)(b.start+2);
-		temp(2) = anglePhi;
-		std::cout << temp << std::endl;
 
 		double sine = sin(anglePhi);
 		double cosine = cos(anglePhi);

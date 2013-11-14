@@ -32,9 +32,7 @@ c_relX::c_relX(const rapidjson::Value& d)
 	sP2 = sP2Temp;
 
 }
-void c_relX::setConstraint(const rapidjson::Value& d){
 
-}
 void c_relX::print(){
 	c_constraint::print();
 	std::cout << "Constraint BodyID1:";

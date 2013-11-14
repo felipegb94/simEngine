@@ -52,6 +52,9 @@ double Function::eval2(double xVal,double yVal){
 void Function::print(){
 	std::cout << p.GetExpr()<<std::endl;
 }
+std::string Function::getString(){
+	return p.GetExpr();
+}
 void Function::testSymbolic(){
 	/**
 	std::cout << "Testing SymbolicC++" <<std::endl;

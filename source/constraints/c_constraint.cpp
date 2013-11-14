@@ -21,9 +21,7 @@ c_constraint::c_constraint(const rapidjson::Value& d)
 	c_ddFunction.setFunction(std::string(d["ddfun"].GetString()));
 
 }
-void c_constraint::setConstraint(const rapidjson::Value& d){
 
-}
 
 
 

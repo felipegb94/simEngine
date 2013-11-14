@@ -20,10 +20,7 @@ c_absY::c_absY(const rapidjson::Value& d)
 	}
 	sP1 = sP1Temp;
 }
-void c_absY::setConstraint(const rapidjson::Value& d){
-	//yGround = d["yGround"].GetDouble();
 
-}
 void c_absY::print(){
 
 	c_constraint::print();

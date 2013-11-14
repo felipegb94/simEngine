@@ -29,7 +29,6 @@ rapidjson::Document parseJSON(string filename){
 		    myfile.close();
 		}
 	else cout << "Unable to open file";
-
     rapidjson::Document d;
     d.Parse<0>(json.c_str());
 

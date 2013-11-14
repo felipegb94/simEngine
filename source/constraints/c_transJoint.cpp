@@ -47,9 +47,7 @@ c_transJoint::c_transJoint(const rapidjson::Value& d)
 	}
 	vP2 = vP2Temp;
 }
-void c_transJoint::setConstraint(const rapidjson::Value& d){
 
-}
 void c_transJoint::print(){
 	c_constraint::print();
 	std::cout << "Constraint BodyID1:";

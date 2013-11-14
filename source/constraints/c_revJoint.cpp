@@ -30,9 +30,7 @@ c_revJoint::c_revJoint(const rapidjson::Value& d)
 	}
 	sP2 = sP2Temp;
 }
-void c_revJoint::setConstraint(const rapidjson::Value& d){
 
-}
 void c_revJoint::print(){
 	c_constraint::print();
 	std::cout << "Constraint BodyID1:";
