@@ -44,8 +44,8 @@ double Function::eval(double val){
 	return p.Eval();
 }
 
-double Function::eval2(double xVal,double yVal){
-	x = xVal;
+double Function::eval2(double yVal){
+
 	y = yVal;
 	return p.Eval();
 }

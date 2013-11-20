@@ -130,7 +130,6 @@ void Model::solve(){
 
 			phiCurr = solve.getPhi(&bodies,&constraints,t);
 
-
 			phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
 
 			arma::vec correction = arma::solve(phi_qCurr,phiCurr);

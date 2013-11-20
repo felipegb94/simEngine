@@ -31,7 +31,7 @@ public:
 	void setFunction(std::string function);
 	double eval(int numSteps, double stepSize);
 	double eval(double val);
-	double eval2(double xVal,double yVal);
+	double eval2(double yVal);
 
 	void print();
 	void testSymbolic();
