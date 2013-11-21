@@ -18,6 +18,7 @@ Function::Function(){
 		p.DefineVar("t", &t);
 		p.DefineVar("x", &x);
 		p.DefineVar("y", &y);
+		p.DefineVar("phi", &anglePhi);
 		p.DefineConst("pi",sim2D_pi);
 		p.DefineConst("e",sim2D_e);
 
@@ -41,6 +42,11 @@ void Function::setFunction(std::string function){
 double Function::eval(double val){
 	t = val;
 
+	return p.Eval();
+}
+double Function::eval(double time, double angle){
+	t = time;
+	anglePhi = angle;
 	return p.Eval();
 }
 

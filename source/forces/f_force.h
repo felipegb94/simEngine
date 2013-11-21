@@ -21,12 +21,17 @@ class f_force{
 public:
 	std::string name;
 	std::string type;
+	arma::vec forces;
 	double id;
+	double bodyID;
 
 
 	f_force(const rapidjson::Value& d);
 
 	virtual ~f_force(){};
+	virtual arma::vec getForce() = 0;
+	virtual void updateForce(double time, double anglePhi) = 0;
+
 
 	virtual void print() = 0 ;
 
@@ -55,7 +60,11 @@ public:
 	f_pointForce(const rapidjson::Value& d);
 	~f_pointForce(){}
 	virtual void print();
-	void toGRF(double anglePhi);
+	void toGRF();
+	virtual void updateForce(double time, double anglePhi);
+	virtual arma::vec getForce();
+
+
 
 };
 
@@ -67,6 +76,8 @@ public:
 	f_torque(const rapidjson::Value& d);
 	~f_torque(){}
 	virtual void print();
+	virtual void updateForce(double time, double anglePhi);
+	virtual arma::vec getForce();
 
 };
 

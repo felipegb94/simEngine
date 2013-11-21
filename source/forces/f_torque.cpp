@@ -7,7 +7,7 @@
 #include "f_force.h"
 f_torque::f_torque(const rapidjson::Value& d)
 :	f_force(d),
-	bodyID1(d["body"].GetDouble())
+	bodyID1(d["body1"].GetDouble())
 {
 	torqueFun.setFunction(std::string(d["fun"].GetString()));
 }
@@ -21,5 +21,12 @@ void f_torque::print(){
 
 	std::cout << "Torque function =  ";
 	torqueFun.print();
-
+}
+void f_torque::updateForce(double time,double anglePhi){
+	forces(0) = 0;
+	forces(1) = 0;
+	forces(2) = torqueFun.eval(time);
+}
+arma::vec f_torque::getForce(){
+	return forces;
 }

@@ -9,7 +9,6 @@
 
 f_pointForce::f_pointForce(const rapidjson::Value& d)
 :	f_force(d),
-	bodyID1(d["body1"].GetDouble()),
 	frame(std::string(d["frame"].GetString()))
 {
 	const rapidjson::Value& b = d["sP1"];
@@ -19,36 +18,40 @@ f_pointForce::f_pointForce(const rapidjson::Value& d)
 	}
 	sP1 = sP1Temp;
 
-	const rapidjson::Value& fun = d["fun"];
-	rapidjson::SizeType index = 0;
-	xComponentFun.setFunction(std::string(fun[index].GetString()));
-	index = 1;
-	yComponentFun.setFunction(std::string(fun[index].GetString()));
+	xComponentFun.setFunction(std::string(d["funX"].GetString()));
+	yComponentFun.setFunction(std::string(d["funY"].GetString()));
+	if(frame.compare("LRF") == 0){
+		cout <<  "Changing to GRF " <<  endl;
+		toGRF();
+	}
+
 }
 
-void f_pointForce::toGRF(double anglePhi){
-
-	std::stringstream s1;
-	std::stringstream s2;
+void f_pointForce::toGRF(){
 
 
-	double cosine = cos(anglePhi);
-	s1 << cosine;
-	std::string cosineStr = s1.str();
-	double sine = sin(anglePhi);
-	s2 << sine;
-	std::string sineStr = s2.str();
 	std::string oldXFun = xComponentFun.getString();
 	std::string oldYFun = yComponentFun.getString();
 
-	std::string newXFun = "("+oldXFun + "*"+cosineStr+") - " + "("+oldYFun + "*"+sineStr+")";
+	std::string newXFun = "("+oldXFun + "*"+"cos(phi)"+") - " + "("+oldYFun + "*"+"sin(phi)"+")";
 	std::cout << newXFun <<std::endl;
 	xComponentFun.setFunction(newXFun);
 
-	std::string newYFun = "("+oldXFun + "*"+sineStr+") + " + "("+oldYFun + "*"+cosineStr+")";
+	std::string newYFun = "("+oldXFun + "*"+"sin(phi)"+") + " + "("+oldYFun + "*"+"cos(phi)"+")";
 	std::cout << newYFun <<std::endl;
 	yComponentFun.setFunction(newYFun);
 
+}
+void f_pointForce::updateForce(double time, double anglePhi){
+	double sine = sin(anglePhi);
+	double cosine = cos(anglePhi);
+	forces(0) = xComponentFun.eval(time,anglePhi);
+	forces(1) = yComponentFun.eval(time,anglePhi);
+	forces(2) = sP1(0)*(forces(0)*(-1*sine) + forces(1)*cosine) - sP1(1)*(forces(0)*cosine + forces(1)*sine);
+
+}
+arma::vec f_pointForce::getForce(){
+	return forces;
 }
 
 void f_pointForce::print(){

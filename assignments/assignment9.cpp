@@ -95,6 +95,11 @@ int main(int argc, char** argv){
 
 	MyJsonDocument d2 = parseJSON("models/doublePend.adm");
 	Model m(d2);
+	m.setSimulationType(simulation);
+	m.setStepSize(stepSize);
+	m.setTEnd(tend);
+	m.setOutputSteps(outputSteps);
+	m.solveD();
 
 
 	cout << timer.toc() <<endl;

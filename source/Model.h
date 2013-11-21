@@ -29,6 +29,10 @@ private:
 	double tEnd;
 	double outputSteps;
 	double stepSize;
+	double currTime;
+	int numConstraints;
+	double BETA;
+	double GAMMA;
 
 	arma::vec qCurr;
 	arma::vec qdCurr;
@@ -37,15 +41,25 @@ private:
 	arma::mat phi_qCurr;
 	arma::vec nu;
 	arma::vec gamma;
+	arma::mat M;
+	arma::vec QACurr;
+	arma::vec QCCurr;
+	arma::vec lambdaCurr;
+
+	arma::vec qddLambda;
+	arma::vec QAGamma;
 
 	std::vector<arma::vec> q_list;
 	std::vector<arma::vec> qd_list;
 	std::vector<arma::vec> qdd_list;
+	std::vector<arma::vec> QA_list;
+	std::vector<arma::vec> lambda_list;
+	std::vector<arma::vec> QC_list;
+
 
 	std::vector<arma::vec> qp_list;
 	std::vector<arma::vec> qdp_list;
 	std::vector<arma::vec> qddp_list;
-
 
 
 	std::vector<arma::vec> phi_list; //List of Vectors of kinematic and driver constraints at each time
@@ -88,7 +102,15 @@ public:
 	/**
 	 * Solvers
 	 */
-	void solve();
+	void solveK();
+	void solveD();
+	void setInitCond();
+	void updateM();
+	void updateForces();
+	void updateQA();
+	void updateQ();
+	void updateQd();
+	void updateQdd();
 
 };
 #endif /* MODEL_H_ */

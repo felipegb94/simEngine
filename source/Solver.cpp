@@ -12,9 +12,9 @@ Solver::Solver(){
 	std::cout << "creating a solver" <<std::endl;
 
 }
-arma::vec Solver::getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t){
+arma::vec Solver::getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t, int numConstraints){
 	int flags = 1;
-	arma::vec phi = arma::zeros(bodies->size()*3);
+	arma::vec phi = arma::zeros(numConstraints);
 	int counter = 0;
 
 	for(std::vector<int>::size_type i = 0; i < constraints->size();i++){
@@ -68,9 +68,9 @@ arma::vec Solver::getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *c
 	//std::cout << phi << std::endl;
 	return phi;
 }
-arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t){
+arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t,int numConstraints){
 
-	arma::mat phi_q = arma::zeros(bodies->size()*3,bodies->size()*3);
+	arma::mat phi_q = arma::zeros(numConstraints,bodies->size()*3);
 	int counter = 0;
 
 	for(std::vector<int>::size_type i = 0; i < constraints->size();i++){
@@ -158,9 +158,9 @@ arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint
 	return phi_q;
 
 }
-arma::vec Solver::getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t){
+arma::vec Solver::getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t,int numConstraints){
 	int flags = 2;
-	arma::vec nu = arma::zeros(bodies->size()*3);
+	arma::vec nu = arma::zeros(numConstraints);
 	int counter = 0;
 
 	for(std::vector<int>::size_type i = 0; i < constraints->size();i++){
@@ -219,9 +219,9 @@ arma::vec Solver::getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *co
 	return nu;
 
 }
-arma::vec Solver::getGamma(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t){
+arma::vec Solver::getGamma(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t,int numConstraints){
 	int flags = 3;
-	arma::vec gamma = arma::zeros(bodies->size()*3);
+	arma::vec gamma = arma::zeros(numConstraints);
 	int counter = 0;
 	for(std::vector<int>::size_type i = 0; i < constraints->size();i++){
 		string type = constraints->at(i)->type;

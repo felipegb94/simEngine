@@ -11,6 +11,8 @@
 f_force::f_force(const rapidjson::Value& d)
 :	name(std::string(d["name"].GetString())),
  	type(std::string(d["type"].GetString())),
- 	id(d["id"].GetDouble())
+ 	id(d["id"].GetDouble()),
+ 	bodyID(d["body1"].GetDouble())
 {
+	forces.zeros(3);
 }

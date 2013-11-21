@@ -17,10 +17,10 @@
 class Solver{
 public:
 	Solver();
-	arma::vec getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t);
-	arma::mat getJacobian(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t);
-	arma::vec getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t);
-	arma::vec getGamma(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t);
+	arma::vec getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t,int numConstraints);
+	arma::mat getJacobian(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t,int numConstraints);
+	arma::vec getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t,int numConstraints);
+	arma::vec getGamma(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t,int numConstraints);
 
 private:
 
