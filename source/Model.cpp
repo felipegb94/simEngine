@@ -220,15 +220,18 @@ void Model::solveD(){
 	 * Start time iterations
 	 */
 	t += stepSize;
-	for(int i = 0; i < 20;i++){
-
-		updateForces();
+	for(int i = 0; i < 70;i++){
+		std::cout << "time" << t << std::endl;
+		updateQ();
+		updateQd();
+		updateQdd();
 		phiCurr = solve.getPhi(&bodies,&constraints,t,numConstraints);
 		arma::vec q0 = qCurr;
 		arma::vec qd0 = qdCurr;
 		arma::vec qdd0 = qddCurr;
+		//std::cout << "initial acc = " << qdd0 <<std::endl;
 
-		for(int i = 0; i < 15; i++){
+		for(int i = 0; i < 10; i++){
 			/**
 			 *Newmarks Method
 			 */
@@ -237,21 +240,22 @@ void Model::solveD(){
 			//std::cout << qCurr << std::endl;
 			qdCurr = qd0 + stepSize*((1-GAMMA)*qdd0 + GAMMA*qddCurr);
 			//std::cout << qdCurr << std::endl;
-
+			if(i == 0){
+				phi_qCurr = solve.getJacobian(&bodies,&constraints,t,numConstraints);
+				phi_qT = phi_qCurr.t();
+				J = join_rows(join_cols(M,phi_qCurr),join_cols(phi_qT,zeros(numConstraints,numConstraints)));
+			}
 			//Update vectors and matrices with our new positions and velocities
-
 			updateQ();
 			updateQd();
 			updateQdd();
 
+			phiCurr = solve.getPhi(&bodies,&constraints,t,numConstraints);
+			updateForces();
 			updateQA();
 
-			phi_qCurr = solve.getJacobian(&bodies,&constraints,t,numConstraints);
-			phi_qT = phi_qCurr.t();
-			arma::mat J = join_rows(join_cols(M,phi_qCurr),join_cols(phi_qT,zeros(numConstraints,numConstraints)));
-
 			arma::mat psi = M*qddCurr+phi_qT*lambdaCurr-QACurr;
-			arma::mat omega = 1/(BETA*stepSize*stepSize) * phiCurr;
+			arma::mat omega = (1/(BETA*stepSize*stepSize)) * phiCurr;
 
 			arma::mat psi_omega = arma::join_cols(psi,omega);
 			//std::cout << psi_omega << std::endl;
@@ -266,17 +270,22 @@ void Model::solveD(){
 			}
 
 		}
+
 		qCurr = q0 + stepSize*qd0 + (stepSize*stepSize/2)*((1-2*BETA) * qdd0 + 2*BETA*qddCurr);
-		std::cout << qCurr << std::endl;
+		//std::cout << phiCurr << std::endl;
+		//std::cout << phiCurr << std::endl;
+		std::cout << phiCurr << std::endl;
+
 		qdCurr = qd0 + stepSize*((1-GAMMA)*qdd0 + GAMMA*qddCurr);
+
 		updateQ();
 		updateQd();
 		updateQdd();
-		/**
+
 		q_list.push_back(qCurr);
-		qd_list.push_back(qCurr);
-		qdd_list.push_back(qCurr);
-		*/
+		qd_list.push_back(qdCurr);
+		qdd_list.push_back(qddCurr);
+		lambda_list.push_back(lambdaCurr);
 
 		t+=stepSize;
 	}
@@ -353,7 +362,7 @@ void Model::updateQA(){
 	QACurr.zeros(bodies.size()*3);
 	for(int i = 0; i < bodies.size(); i++){
 		double mass = bodies.at(i).getMass();
-		QACurr(bodies.at(i).start+1) += -9.81*mass;
+		QACurr(bodies.at(i).start+1) += -1*9.81*mass;
 	}
 	for(int i = 0; i < forces.size(); i++){
 		int bodyIndex = forces.at(i)->bodyID - 1;

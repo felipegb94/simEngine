@@ -11,9 +11,9 @@ i = 1
 while i < len(data)+1:
     yLabel = ""
     if i == 1:
-        yLabel = "xVelocity (m/s)"
+        yLabel = "fEuler y "
     elif i == 2:
-        yLabel = "yVelocity (m/s)"
+        yLabel = "bEuler y (m/s)"
     elif i == 3:
         yLabel = "xAcceleration(m/s^2)"
     elif i == 3:

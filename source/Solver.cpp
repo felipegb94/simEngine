@@ -59,8 +59,9 @@ arma::vec Solver::getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *c
 
 			arma::vec revJointPhi = getRevJoint(revJoint,body1,body2,t,flags);
 			phi(counter) = revJointPhi(0);
+			counter++;
 			phi(counter) = revJointPhi(1);
-			counter = counter+2;
+			counter++;
 
 		}
 	}
@@ -87,7 +88,6 @@ arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint
 				phi_q(row,col+1) = xPhi_q(1);
 				phi_q(row,col+2) = xPhi_q(2);
 				counter++;
-
 			}
 			else if(type == "AbsoluteY"){
 				c_absY* absY =  static_cast<c_absY*>(constraints->at(i));
@@ -366,10 +366,8 @@ arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,
 	double sine2 = sin(anglePhi2);
 
 	if(flags == 1){
-		revoluteComponents(0) = (x1 + (sP1(0)*cosine1) - (sP1(1)*sine1)) -
-				(x2 + (sP2(0)*cosine2) - (sP2(1)*sine2));
-		revoluteComponents(1)= (y1 + (sP1(0)*sine1) + (sP1(1)*cosine1)) -
-				(y2 + (sP2(0)*sine2) - (sP2(1)*cosine2));
+		revoluteComponents(0) = (x1 + (sP1(0)*cosine1) - (sP1(1)*sine1)) - (x2 + (sP2(0)*cosine2) - (sP2(1)*sine2));
+		revoluteComponents(1)= (y1 + (sP1(0)*sine1) + (sP1(1)*cosine1)) - (y2 + (sP2(0)*sine2) + (sP2(1)*cosine2));
 	}
 	else if(flags == 2){
 		revoluteComponents(0) = 0;
@@ -390,7 +388,7 @@ arma::rowvec Solver::getAbsX_jac(c_absX* absX, Body body,double t){
 
 	xComponents(0) = 1;
 	xComponents(1) = 0;
-	xComponents(2) = (-1)*(absX->sP1(0)*sin(anglePhi)) - (absX->sP1(1)*cos(anglePhi));
+	xComponents(2) = (-1*absX->sP1(0)*sin(anglePhi)) - (absX->sP1(1)*cos(anglePhi));
 
 	return xComponents;
 }
@@ -419,12 +417,13 @@ arma::mat Solver::getRevJoint_jac(c_revJoint* revoluteJoint, Body body1, Body bo
 	double anglePhi2= body2.getQ()(2);
 	double cosine1 = cos(anglePhi1);
 	double sine1 = sin(anglePhi1);
-	double cosine2 = cos(anglePhi1);
-	double sine2 = sin(anglePhi1);
+	double cosine2 = cos(anglePhi2);
+	double sine2 = sin(anglePhi2);
 
 	revJoint(0,0) = 1;
 	revJoint(0,1) = 0;
-	revJoint(0,2) = (-1)*(revoluteJoint->sP1(0)*sine1) - (revoluteJoint->sP1(1)*cosine1);
+	revJoint(0,2) = (-1*revoluteJoint->sP1(0)*sine1) - (revoluteJoint->sP1(1)*cosine1);
+
 	revJoint(0,3) = -1;
 	revJoint(0,4) = 0;
 	revJoint(0,5) = (revoluteJoint->sP2(0)*sine2) + (revoluteJoint->sP2(1)*cosine2);
@@ -434,7 +433,7 @@ arma::mat Solver::getRevJoint_jac(c_revJoint* revoluteJoint, Body body1, Body bo
 	revJoint(1,2) = (revoluteJoint->sP1(0)*cosine1) - (revoluteJoint->sP1(1)*sine1);
 	revJoint(1,3) = 0;
 	revJoint(1,4) = -1;
-	revJoint(1,5) = (-1)*(revoluteJoint->sP2(0)*cosine2) + (revoluteJoint->sP2(1)*sine2);
+	revJoint(1,5) = (-1*revoluteJoint->sP2(0)*cosine2) + (revoluteJoint->sP2(1)*sine2);
 
 	return revJoint;
 }
