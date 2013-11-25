@@ -28,7 +28,7 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
  stepSize(stepsize)
 {
 
-
+	simulationSteps = tEnd/stepSize;
 	std::cout << gravity << std::endl;
 	std::cout << "Creating a model" << endl;
 	std::cout << "Model Name: " + name << std::endl;
@@ -143,7 +143,7 @@ void Model::solveK(){
 	double tolerance = pow(10.0,-8.0);
 	double goal = 0.37;
 
-	for(int i = 0; i <= outputSteps;i++){
+	for(int i = 0; i <= simulationSteps;i++){
 		for(int i = 0; i < maxIterations; i++){
 			phiCurr = solve.getPhi(&bodies,&constraints,t,numConstraints);
 			phi_qCurr = solve.getJacobian(&bodies,&constraints,t,numConstraints);
@@ -159,7 +159,6 @@ void Model::solveK(){
 		}
 		phi_qCurr = solve.getJacobian(&bodies,&constraints,t,numConstraints);
 		q_list.push_back(qCurr);
-		updateQ();
 
 		nu = solve.getNu(&bodies,&constraints,t,numConstraints);
 		qdCurr = arma::inv(phi_qCurr)*nu;

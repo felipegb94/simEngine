@@ -30,9 +30,11 @@ private:
 	double outputSteps;
 	double stepSize;
 	double currTime;
+	double simulationSteps;
 	int numConstraints;
 	double BETA;
 	double GAMMA;
+
 
 	arma::vec qCurr;
 	arma::vec qdCurr;
