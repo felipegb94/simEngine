@@ -71,7 +71,7 @@ public:
 	vec gravity;
 	double t;
 
-	Model(MyJsonDocument& d);
+	Model(MyJsonDocument& d, std::string type, 	double tend,double outputsteps,double stepsize);
 	//input could be a json file?
 	const std::vector<Body>& getBodies(){return bodies;}
 	const std::vector<c_constraint*>& getConstraints(){return constraints;}

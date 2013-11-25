@@ -32,7 +32,6 @@ using namespace std;
 int main(int argc, char** argv){
 	arma::wall_clock timer; //Keeps track of how much time my program is taking to run.
 
-	system( "python ../../repos/simEngine/python/updateJSON.py" );
 	timer.tic();
 
 	cout << "In this program I'm assuming that the given json model.adm file will follow a certain format, where keys will have an expected name." <<endl;
@@ -63,23 +62,14 @@ int main(int argc, char** argv){
 
 	MyJsonDocument d4 = parseJSON("models/dPend.adm");
 	cout << "parsing is fine" << endl;
-	Model m(d4);
+	Model m(d4, simulation, tend,outputSteps,stepSize);
 
 	//Set simulation properties (type of simulation, stepsize, outputsteps, tend)
-	m.setSimulationType(simulation);
-	m.setTEnd(tend);
-	m.setOutputSteps(outputSteps);
-	m.setStepSize(stepSize);
-
-	vector<c_constraint*> constraints = m.getConstraints();
-	for(std::vector<int>::size_type i = 0; i != constraints.size(); i++) {
-
-			constraints[i]->print();
 
 
-	}
 
-	m.solve();
+	m.solveK();
+
 	int bodyID = 2;
 	double spX = 3;
 	double spY = 0;

@@ -291,7 +291,7 @@ double Solver::getAbsX(c_absX* absX, Body body,double t, int flags){
 	}
 	else if(flags == 3){
 
-		xComponent = (((absX->sP1(0)*cosine) - absX->sP1(1)*sine)*pow(anglePhi_d,2)) + absX->c_ddFunction.eval(t);
+		xComponent = (((absX->sP1(0)*cosine) - absX->sP1(1)*sine)*anglePhi_d*anglePhi_d) + absX->c_ddFunction.eval(t);
 	}
 
 
@@ -317,7 +317,7 @@ double Solver::getAbsY(c_absY* absY, Body body,double t,int flags){
 	}
 	else if(flags == 3){
 
-		yComponent = (((absY->sP1(0)*sine) + absY->sP1(1)*cosine)*pow(anglePhi_d,2)) + absY->c_ddFunction.eval(t);
+		yComponent = (((absY->sP1(0)*sine) + absY->sP1(1)*cosine)*anglePhi_d*anglePhi_d) + absY->c_ddFunction.eval(t);
 	}
 
 

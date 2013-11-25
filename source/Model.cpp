@@ -15,13 +15,17 @@
 #include <armadillo>
 
 
-Model::Model(MyJsonDocument& d)
+Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputsteps,double stepsize)
 :gravity("0 -9.81"),
  name(d["name"].GetString()),
  t(0.0),
  BETA(0.3025),
  GAMMA(0.6),
- numConstraints(0)
+ numConstraints(0),
+ simulationType(type),
+ tEnd(tend),
+ outputSteps(outputsteps),
+ stepSize(stepsize)
 {
 
 
@@ -98,37 +102,21 @@ Model::Model(MyJsonDocument& d)
 		}
 
 	}
-
-	const rapidjson::Value& jsonForces = d["forces"];
-	std::cout << "here" <<std::endl;
-	for(int i = 0; i < jsonForces.Size(); i++){
-		const rapidjson::Value& v = jsonForces[i];
-		std::cout << "iteration" << i << std::endl;
-		if(std::string(v["type"].GetString()) == "PointForce"){
-			forces.push_back(new f_pointForce(v));
-		}
-		else if(std::string(v["type"].GetString()) == "Torque"){
-			forces.push_back(new f_torque(v));
+	if(simulationType.compare("Dynamics") == 0){
+		const rapidjson::Value& jsonForces = d["forces"];
+		std::cout << "here" <<std::endl;
+		for(int i = 0; i < jsonForces.Size(); i++){
+			const rapidjson::Value& v = jsonForces[i];
+			std::cout << "iteration" << i << std::endl;
+			if(std::string(v["type"].GetString()) == "PointForce"){
+				forces.push_back(new f_pointForce(v));
+			}
+			else if(std::string(v["type"].GetString()) == "Torque"){
+				forces.push_back(new f_torque(v));
+			}
 		}
 	}
-	/**
-	h=mSysProps->stepSize;
-	mPhi.set_size(CONSTRAINTS,1);
-	mQ.set_size(BODIES*3,1);
-	mQdot.set_size(BODIES*3,1);
-	mQddot.set_size(BODIES*3,1);
-	mPhiq.zeros(CONSTRAINTS,CONSTRAINTS*3);
-	mNu.set_size(CONSTRAINTS,1);
-	mGamma.set_size(CONSTRAINTS,1);
-	M.zeros(BODIES*3,BODIES*3);
-	mQF.zeros(BODIES*3,1);
-	mLambda.zeros(CONSTRAINTS,1);
-	Update_M();
-	Update_Q();
-	Update_Qdot();
-	Update_Qddot();
-	mQCF.zeros(CONSTRAINTS*3,1);
-	*/
+
 
 	//Initialize matrices and vectors
 	qCurr.set_size(bodies.size()*3);
@@ -146,12 +134,6 @@ Model::Model(MyJsonDocument& d)
 	//Set initial conditions and mass matrix
 	setInitCond();
 	updateM();
-	/**
-	cout << M << endl;
-	arma::mat z = arma::zeros(6,6);
-	arma::mat test = join_rows(M,z);
-	cout << test << endl;
-	*/
 
 }
 void Model::solveK(){
@@ -175,20 +157,24 @@ void Model::solveK(){
 			}
 
 		}
+		phi_qCurr = solve.getJacobian(&bodies,&constraints,t,numConstraints);
 		q_list.push_back(qCurr);
-		//phi_qCurr = solve.getJacobian(&bodies,&constraints,t);
+		updateQ();
 
 		nu = solve.getNu(&bodies,&constraints,t,numConstraints);
-		qdCurr = arma::solve(phi_qCurr,nu);
-		qd_list.push_back(qdCurr);
+		qdCurr = arma::inv(phi_qCurr)*nu;
+		//qdCurr = arma::solve(phi_qCurr,nu);
 		updateQd();
+		qd_list.push_back(qdCurr);
 
 
 		gamma = solve.getGamma(&bodies,&constraints,t,numConstraints);
-		qddCurr = arma::solve(phi_qCurr,gamma);
+		//qddCurr = arma::solve(phi_qCurr,gamma);
+		qddCurr = arma::inv(phi_qCurr)*gamma;
 		updateQdd();
-
 		qdd_list.push_back(qddCurr);
+
+
 		t+=stepSize;
 
 	}
@@ -309,6 +295,10 @@ void Model::setInitCond(){
 	}
 	std::cout<<"Initial q = "<<std::endl;
 	std::cout<<qCurr<<std::endl;
+	std::cout<<"Initial qd = "<<std::endl;
+	std::cout<<qdCurr<<std::endl;
+	updateQ();
+	updateQd();
 	q_list.push_back(qCurr);
 	qd_list.push_back(qdCurr);
 }
@@ -385,20 +375,18 @@ const std::vector<arma::vec>& Model::getQList(int bodyID, double spX, double spY
 		arma::vec r(2);
 		r(0) = qp_list.at(i)(b.start);
 		r(1) = qp_list.at(i)(b.start+1);
-
-
-
-
 		double anglePhi = qp_list.at(i)(b.start+2);
-
 		double sine = sin(anglePhi);
 		double cosine = cos(anglePhi);
+		qp_list.at(i)(b.start) = r(0) + spX*cosine - spY*sine;
+		qp_list.at(i)(b.start+1) = r(1) + spX*sine + spY*cosine;
 
 	}
 
 	return qp_list;
 }
 const std::vector<arma::vec>& Model::getQdList(int bodyID, double spX, double spY){
+	this->qp_list = this->q_list;
 	this->qdp_list = this->qd_list;
 	Body b = bodies.at(bodyID - 1);
 	std:: cout << "start" << b.start << std::endl;
@@ -408,8 +396,8 @@ const std::vector<arma::vec>& Model::getQdList(int bodyID, double spX, double sp
 		arma::vec rd(2);
 		rd(0) = qdp_list.at(i)(b.start);
 		rd(1) = qdp_list.at(i)(b.start+1);
-		double anglePhi = qp_list.at(i)(b.start+2);
-		double anglePhid = qdp_list.at(i)(b.start+2);
+		double anglePhi = q_list.at(i)(b.start+2);
+		double anglePhid = qd_list.at(i)(b.start+2);
 		double sine = sin(anglePhi);
 		double cosine = cos(anglePhi);
 		qdp_list.at(i)(b.start) = rd(0) - (sine*spX)*anglePhid - (cosine*spY)*anglePhid;
@@ -422,16 +410,15 @@ const std::vector<arma::vec>& Model::getQdList(int bodyID, double spX, double sp
 const std::vector<arma::vec>& Model::getQddList(int bodyID, double spX, double spY){
 	this->qddp_list = this->qdd_list;
 	Body b = bodies.at(bodyID - 1);
-	std:: cout << "start" << b.start << std::endl;
 
 
 	for(int i = 0; i < qddp_list.size();i++){
 		arma::vec rdd(2);
 		rdd(0) = qddp_list.at(i)(b.start);
 		rdd(1) = qddp_list.at(i)(b.start+1);
-		double anglePhi = qp_list.at(i)(b.start+2);
-		double anglePhid = qdp_list.at(i)(b.start+2);
-		double anglePhidd = qddp_list.at(i)(b.start+2);
+		double anglePhi = q_list.at(i)(b.start+2);
+		double anglePhid = qd_list.at(i)(b.start+2);
+		double anglePhidd = qdd_list.at(i)(b.start+2);
 
 		double sine = sin(anglePhi);
 		double cosine = cos(anglePhi);

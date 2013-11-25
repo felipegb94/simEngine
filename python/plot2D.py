@@ -11,13 +11,13 @@ i = 1
 while i < len(data)+1:
     yLabel = ""
     if i == 1:
-        yLabel = "fEuler y "
+        yLabel = "xVel at Q "
     elif i == 2:
-        yLabel = "bEuler y (m/s)"
+        yLabel = "yVel at Q "
     elif i == 3:
-        yLabel = "xAcceleration(m/s^2)"
+        yLabel = "xAcceleration at Q(m/s^2)"
     elif i == 3:
-        yLabel = "yAcceleration(m/s^2)"
+        yLabel = "yAcceleration at Q(m/s^2)"
     plotName = "Plot"+str(i)
     plot = data[plotName]
     xData = plot[0]
