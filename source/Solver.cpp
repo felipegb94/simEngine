@@ -377,14 +377,7 @@ arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,
 		revoluteComponents(1) = 0;
 	}
 	else if(flags == 3){
-		/**
-	    %Calculate Gamma (RHS of acceleration equation)
-	    Ai=[cos(phi_i) -sin(phi_i);
-	        sin(phi_i) cos(phi_i)];
-	    Aj=[cos(phi_j) -sin(phi_j);
-	        sin(phi_j) cos(phi_j)];
-	    Gamma=Ai*c.sP1.*qdi(3)^2-Aj*c.sP2.*qdj(3)^2+diff(diff(c.fun));*/
-		//void R2DD_ConRevY::Gamma()		{mGamma=mI->mQdot(2,0)*mI->mQdot(2,0)*(sin(mI->mQ(2,0))*xBarPI+cos(mI->mQ(2,0))*yBarPI)-mJ->mQdot(2,0)*mJ->mQdot(2,0)*(sin(mJ->mQ(2,0))*xBarPJ+cos(mJ->mQ(2,0))*yBarPJ)+mFddot;}
+
 		revoluteComponents(0) = (cosine1*sP1(0) - sine1*sP1(1))*anglePhid1*anglePhid1 - (cosine2*sP2(0) - sine2*sP2(1))*anglePhid2*anglePhid2;
 		revoluteComponents(1) = (sine1*sP1(0) + cosine1*sP1(1))*anglePhid1*anglePhid1 - (sine2*sP2(1) + cosine2*sP2(0))*anglePhid2*anglePhid2;
 	}
