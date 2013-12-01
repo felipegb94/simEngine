@@ -1,13 +1,13 @@
 /*
- * f_pointForce.cpp
+ * f_forceFile.cpp
  *
- *  Created on: Nov 11, 2013
+ *  Created on: Nov 30, 2013
  *      Author: pipe
  */
 
 #include "f_force.h"
 
-f_pointForce::f_pointForce(const rapidjson::Value& d)
+f_forceFile::f_forceFile(const rapidjson::Value& d)
 :	f_force(d),
 	frame(std::string(d["frame"].GetString()))
 {
@@ -18,8 +18,10 @@ f_pointForce::f_pointForce(const rapidjson::Value& d)
 	}
 	sP1 = sP1Temp;
 
-	xComponentFun.setFunction(std::string(d["funX"].GetString()));
-	yComponentFun.setFunction(std::string(d["funY"].GetString()));
+	function1.setFunction(std::string(d["function1"].GetString()));
+	function2.setFunction(std::string(d["function2"].GetString()));
+	function3.setFunction(std::string(d["function3"].GetString()));
+
 	if(frame.compare("LRF") == 0){
 		cout <<  "Changing to GRF " <<  endl;
 		toGRF();
@@ -27,9 +29,9 @@ f_pointForce::f_pointForce(const rapidjson::Value& d)
 
 }
 
-void f_pointForce::toGRF(){
+void f_forceFile::toGRF(){
 
-
+/**
 	std::string oldXFun = xComponentFun.getString();
 	std::string oldYFun = yComponentFun.getString();
 
@@ -40,25 +42,43 @@ void f_pointForce::toGRF(){
 	std::string newYFun = "("+oldXFun + "*"+"sin(phi)"+") + " + "("+oldYFun + "*"+"cos(phi)"+")";
 	std::cout << newYFun <<std::endl;
 	yComponentFun.setFunction(newYFun);
+	*/
 
 }
-void f_pointForce::updateForce(double time, double anglePhi){
-	double sine = sin(anglePhi);
-	double cosine = cos(anglePhi);
-	forces(0) = xComponentFun.eval(time,anglePhi);
-	forces(1) = yComponentFun.eval(time,anglePhi);
-	forces(2) = sP1(0)*(forces(0)*(-1*sine) + forces(1)*cosine) - sP1(1)*(forces(0)*cosine + forces(1)*sine);
+void f_forceFile::updateForce(double time,double anglePhi){
+	forces(0) = 0;
+	forces(1) = 0;
+	forces(2) = 0;
+	//std::cout << "wrong updateFORCE!!!!!"<<std::endl;
+}
+void f_forceFile::updateForce(double time, double x, double xDot){
+	if(xDot <= 0){
+
+		forces(0) = 0;
+	}
+	else if((x <= 5)){
+
+		forces(0) = function2.evalX(time,x);
+	}
+	else if(x <= 5.5){
+		std::cout <<"x = "<< x << std::endl;
+		forces(0) = function3.evalX(time,x);
+		std::cout <<"force(0) = "<< forces(0) << std::endl;
+
+	}
+	else{
+		forces(0) = 0;
+	}
+
+	forces(1) = 0;
+	forces(2) = 0;
 
 }
-void f_pointForce::updateForce(double time, double x, double xDot){
-
-
-}
-arma::vec f_pointForce::getForce(){
+arma::vec f_forceFile::getForce(){
 	return forces;
 }
 
-void f_pointForce::print(){
+void f_forceFile::print(){
 
 	f_force::print();
 
@@ -71,10 +91,12 @@ void f_pointForce::print(){
 	}
 	std::cout<<"]"<<std::endl;
 	std::cout << "Frame: " << frame << std::endl;
-	std::cout << "Force xComponent =  ";
-	xComponentFun.print();
-	std::cout << "Force yComponent =  ";
-	yComponentFun.print();
+	std::cout << "Force function1 =  ";
+	function1.print();
+	std::cout << "Force function2 =  ";
+	function2.print();
+	std::cout << "Force function3 =  ";
+	function3.print();
 
 
 }

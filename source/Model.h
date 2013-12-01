@@ -25,6 +25,7 @@ private:
 	std::vector<Body> bodies;
 	std::vector<c_constraint*> constraints;
 	std::vector<f_force*> forces;
+
 	std::string simulationType;
 	double tEnd;
 	double outputSteps;
@@ -58,6 +59,10 @@ private:
 	std::vector<arma::vec> lambda_list;
 	std::vector<arma::vec> QC_list;
 
+	std::vector<arma::vec> force_list;
+	std::vector<arma::vec> reactionForces_list;
+
+
 
 	std::vector<arma::vec> qp_list;
 	std::vector<arma::vec> qdp_list;
@@ -70,7 +75,7 @@ private:
 	std::vector<arma::vec> gamma_list; //List of RHS of the acceleration linear system at each time
 
 public:
-	vec gravity;
+	arma::vec gravity;
 	double t;
 
 	Model(MyJsonDocument& d, std::string type, 	double tend,double outputsteps,double stepsize);
@@ -87,8 +92,10 @@ public:
 	void setOutputSteps(double outputSteps){this->outputSteps = outputSteps;}
 	void setStepSize(double stepSize){this->stepSize = stepSize;}
 
+	double getSimulationSteps(){return this->simulationSteps;}
 	double getOutputSteps(){return this->outputSteps;}
 	double getStepSize(){return this->stepSize;}
+
 	const std::vector<arma::vec>& getQList(){return q_list;}
 	const std::vector<arma::vec>& getQList(int bodyID, double spX, double spY);
 
@@ -97,6 +104,11 @@ public:
 
 	const std::vector<arma::vec>& getQddList(){return qdd_list;}
 	const std::vector<arma::vec>& getQddList(int bodyID, double spX, double spY);
+
+	const std::vector<arma::vec>& getLambdaList(){return lambda_list;}
+
+	const std::vector<arma::vec>& getForces(){return force_list;}
+	const std::vector<arma::vec>& getReactionForces(int constraintID, int bodyID1, arma::vec sp1,int bodyID2 = 0,arma::vec sp2 = arma::zeros(2));
 
 
 

@@ -11,13 +11,13 @@ i = 1
 while i < len(data)+1:
     yLabel = ""
     if i == 1:
-        yLabel = "xVel at Q "
+        yLabel = "Angular Velocity of flywheel"
     elif i == 2:
-        yLabel = "yVel at Q "
+        yLabel = "Position of Slider "
     elif i == 3:
-        yLabel = "xAcceleration at Q(m/s^2)"
-    elif i == 3:
-        yLabel = "yAcceleration at Q(m/s^2)"
+        yLabel = "Velocity of Slider"
+    elif i == 4:
+        yLabel = "xComponent of reaction force at flywheel"
     plotName = "Plot"+str(i)
     plot = data[plotName]
     xData = plot[0]

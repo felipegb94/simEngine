@@ -114,8 +114,13 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 			else if(std::string(v["type"].GetString()) == "Torque"){
 				forces.push_back(new f_torque(v));
 			}
+			else if(std::string(v["type"].GetString()) == "forceFile"){
+				forces.push_back(new f_forceFile(v));
+
+			}
 		}
 	}
+	forces.at(1)->print();
 
 
 	//Initialize matrices and vectors
@@ -141,6 +146,7 @@ void Model::solveK(){
 	int maxIterations = 30;
 	Solver solve;
 	double tolerance = pow(10.0,-8.0);
+
 	double goal = 0.37;
 
 	for(int i = 0; i <= simulationSteps;i++){
@@ -161,18 +167,18 @@ void Model::solveK(){
 		q_list.push_back(qCurr);
 
 		nu = solve.getNu(&bodies,&constraints,t,numConstraints);
-		qdCurr = arma::inv(phi_qCurr)*nu;
+		qdCurr = arma::solve(phi_qCurr,nu);
 		//qdCurr = arma::solve(phi_qCurr,nu);
 		updateQd();
 		qd_list.push_back(qdCurr);
 
 
 		gamma = solve.getGamma(&bodies,&constraints,t,numConstraints);
-		//qddCurr = arma::solve(phi_qCurr,gamma);
-		qddCurr = arma::inv(phi_qCurr)*gamma;
+		qddCurr = arma::solve(phi_qCurr,gamma);
 		updateQdd();
 		qdd_list.push_back(qddCurr);
-
+		std::cout << "Time = " << t << std::endl;
+		std::cout << qddCurr << std::endl;
 
 		t+=stepSize;
 
@@ -198,6 +204,12 @@ void Model::solveD(){
 	qddCurr = qddLambda.rows(0,(bodies.size()*3) -1);
 	lambdaCurr = qddLambda.rows(bodies.size()*3,qddLambda.n_elem-1);
 
+	q_list.push_back(qCurr);
+	qd_list.push_back(qdCurr);
+	qdd_list.push_back(qddCurr);
+	lambda_list.push_back(lambdaCurr);
+	phi_q_list.push_back(phi_qCurr);
+
 	int maxIterations = 30;
 	double tolerance = pow(10.0,-8.0);
 
@@ -205,8 +217,8 @@ void Model::solveD(){
 	 * Start time iterations
 	 */
 	t += stepSize;
-	for(int i = 0; i < 70;i++){
-		std::cout << "time" << t << std::endl;
+	for(int i = 1; i <= simulationSteps;i++){
+		//	std::cout << "time" << t << std::endl;
 		updateQ();
 		updateQd();
 		updateQdd();
@@ -257,9 +269,6 @@ void Model::solveD(){
 		}
 
 		qCurr = q0 + stepSize*qd0 + (stepSize*stepSize/2)*((1-2*BETA) * qdd0 + 2*BETA*qddCurr);
-		//std::cout << phiCurr << std::endl;
-		//std::cout << phiCurr << std::endl;
-		std::cout << phiCurr << std::endl;
 
 		qdCurr = qd0 + stepSize*((1-GAMMA)*qdd0 + GAMMA*qddCurr);
 
@@ -271,6 +280,14 @@ void Model::solveD(){
 		qd_list.push_back(qdCurr);
 		qdd_list.push_back(qddCurr);
 		lambda_list.push_back(lambdaCurr);
+		phi_q_list.push_back(phi_qCurr);
+		arma::vec slider = arma::zeros(3);
+		slider(0) = qCurr(6);
+		slider(1) = qCurr(7);
+		slider(2) = qCurr(8);
+
+		std::cout << forces.at(1)->getForce() << std::endl;
+
 
 		t+=stepSize;
 	}
@@ -342,16 +359,25 @@ void Model::updateM(){
 void Model::updateForces(){
 	for(int i = 0; i < forces.size();i++){
 		int bodyIndex = forces.at(i)->bodyID - 1;
-		int angleIndex = bodies.at(bodyIndex).start + 2;
-		double currentAngle = qCurr(angleIndex);
-		forces.at(i)->updateForce(t,currentAngle);
+		if(forces.at(i)->type == "forceFile"){
+			double xVal = qCurr(bodies.at(bodyIndex).start);
+			double xDotVal = qdCurr(bodies.at(bodyIndex).start);
+			forces.at(i)->updateForce(t,xVal,xDotVal);
+		}
+		else{
+			int angleIndex = bodies.at(bodyIndex).start + 2;
+			double currentAngle = qCurr(angleIndex);
+			forces.at(i)->updateForce(t,currentAngle);
+		}
+
 	}
 }
 void Model::updateQA(){
 	QACurr.zeros(bodies.size()*3);
 	for(int i = 0; i < bodies.size(); i++){
 		double mass = bodies.at(i).getMass();
-		QACurr(bodies.at(i).start+1) += -1*9.81*mass;
+		QACurr(bodies.at(i).start) += gravity(0)*mass;
+		QACurr(bodies.at(i).start+1) += gravity(1)*mass;
 	}
 	for(int i = 0; i < forces.size(); i++){
 		int bodyIndex = forces.at(i)->bodyID - 1;
@@ -363,6 +389,10 @@ void Model::updateQA(){
 	}
 
 }
+/**
+ * The following getQList methods overload the getQList method that return the generalized coords for the center of mass and instead
+ * of returning the gen coord at center of mass, it will return the gen coords at point Q.
+ */
 const std::vector<arma::vec>& Model::getQList(int bodyID, double spX, double spY){
 	this->qp_list = this->q_list;
 	Body b = bodies.at(bodyID - 1);
@@ -388,7 +418,6 @@ const std::vector<arma::vec>& Model::getQdList(int bodyID, double spX, double sp
 	this->qp_list = this->q_list;
 	this->qdp_list = this->qd_list;
 	Body b = bodies.at(bodyID - 1);
-	std:: cout << "start" << b.start << std::endl;
 
 
 	for(int i = 0; i < qdp_list.size();i++){
@@ -413,8 +442,9 @@ const std::vector<arma::vec>& Model::getQddList(int bodyID, double spX, double s
 
 	for(int i = 0; i < qddp_list.size();i++){
 		arma::vec rdd(2);
-		rdd(0) = qddp_list.at(i)(b.start);
-		rdd(1) = qddp_list.at(i)(b.start+1);
+		rdd(0) = qdd_list.at(i)(b.start);
+		rdd(1) = qdd_list.at(i)(b.start+1);
+
 		double anglePhi = q_list.at(i)(b.start+2);
 		double anglePhid = qd_list.at(i)(b.start+2);
 		double anglePhidd = qdd_list.at(i)(b.start+2);
@@ -423,9 +453,84 @@ const std::vector<arma::vec>& Model::getQddList(int bodyID, double spX, double s
 		double cosine = cos(anglePhi);
 
 		qddp_list.at(i)(b.start) = rdd(0) - cosine*spX*anglePhid*anglePhid - sine*spX*anglePhidd + sine*spY*anglePhid*anglePhid - cosine*spY*anglePhidd;
-		qddp_list.at(i)(b.start+1) = rdd(1) - sine*spX*anglePhid*anglePhid + cosine*spX*anglePhidd - cosine*spY*anglePhid*anglePhid - sine*spY*anglePhidd;
+		qddp_list.at(i)(b.start+1) = rdd(1)  - sine*spX*anglePhid*anglePhid + cosine*spX*anglePhidd - cosine*spY*anglePhid*anglePhid - sine*spY*anglePhidd;
 
 	}
 	return qddp_list;
 
 }
+const std::vector<arma::vec>& Model::getReactionForces(int constraintID, int bodyID1,arma::vec sp1,int bodyID2 ,arma::vec sp2){
+
+	int numBodies = constraints.at(constraintID-1)->numBodies;
+	double anglePhiCurr;
+	arma::mat phi_qR;
+	arma::mat phi_qPhi;
+	arma::vec lambdaK;
+	arma::mat B;
+	arma::vec fK;
+	arma::vec tK;
+	arma::vec reactionF = arma::zeros(3);
+
+
+
+	if(numBodies == 1){
+		Body b = bodies.at(bodyID1-1);
+
+		for(int i = 0; i <= simulationSteps;i++){
+			phi_qCurr = phi_q_list.at(i);
+			lambdaCurr = lambda_list.at(i);
+			qCurr = q_list.at(i);
+			anglePhiCurr = qCurr(b.start+2);
+			B = b.getB(anglePhiCurr);
+
+			phi_qR = phi_qCurr.submat(constraintID-1,b.start,constraintID-1,b.start+1);
+			phi_qPhi = phi_qCurr.submat(constraintID-1,b.start+2,constraintID-1,b.start+2);
+			lambdaK = lambdaCurr(constraintID-1);
+
+			fK = -1*phi_qR.t()*lambdaK;
+			reactionF(0) = fK(0);
+			reactionF(1) = fK(1);
+
+			tK = sp1.t()*B.t()*fK - phi_qPhi.t()*lambdaK;
+			reactionF(2) = tK(0);
+
+			reactionForces_list.push_back(reactionF);
+
+
+		}
+
+	}
+	else{
+		Body b1 = bodies.at(bodyID1-1);
+		Body b2 = bodies.at(bodyID2-1);
+
+		for(int i = 0; i <= simulationSteps;i++){
+			phi_qCurr = phi_q_list.at(i);
+			lambdaCurr = lambda_list.at(i);
+			qCurr = q_list.at(i);
+			anglePhiCurr = qCurr(b1.start+2);
+			B = b1.getB(anglePhiCurr);
+
+			phi_qR = phi_qCurr.submat(constraintID-1,b1.start,constraintID,b1.start+1);
+			phi_qPhi = phi_qCurr.submat(constraintID-1,b1.start+2,constraintID,b1.start+2);
+			lambdaK = lambdaCurr.rows(constraintID-1,constraintID);
+
+			fK = -1*phi_qR.t()*lambdaK;
+			reactionF(0) = fK(0);
+			reactionF(1) = fK(1);
+
+			tK = sp1.t()*B.t()*fK - phi_qPhi.t()*lambdaK;
+			reactionF(2) = tK(0);
+
+			reactionForces_list.push_back(reactionF);
+		}
+
+		//arma::mat phi_qR2 = phi_qCurr.submat(constraintID-1,b2.start,constraintID-1,b2.start+1);
+
+	}
+
+
+
+	return reactionForces_list;
+}
+

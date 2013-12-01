@@ -12,6 +12,7 @@ c_absY::c_absY(const rapidjson::Value& d)
 :	c_constraint(d),
 	bodyID1(d["body1"].GetDouble())
 {
+	c_constraint::numBodies = 1;
 	const rapidjson::Value& b = d["sP1"];
 	std::vector<double> sP1Temp;
 

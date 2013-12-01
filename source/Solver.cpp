@@ -316,8 +316,7 @@ double Solver::getAbsY(c_absY* absY, Body body,double t,int flags){
 
 	}
 	else if(flags == 3){
-
-		yComponent = (((absY->sP1(0)*sine) + absY->sP1(1)*cosine)*anglePhi_d*anglePhi_d) + absY->c_ddFunction.eval(t);
+		yComponent = ((absY->sP1(0)*sine + absY->sP1(1)*cosine)*anglePhi_d*anglePhi_d) + absY->c_ddFunction.eval(t);
 	}
 
 
@@ -355,18 +354,21 @@ arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,
 	double y1= body1.getQ()(1);
 	double anglePhi1= body1.getQ()(2);
 	double anglePhid1 = body1.getQd()(2);
+	double anglePhidd1 = body1.getQd()(2);
 	arma::vec sP1 = revoluteJoint->sP1;
 	double cosine1 = cos(anglePhi1);
 	double sine1 = sin(anglePhi1);
-
 
 	double x2= body2.getQ()(0);
 	double y2= body2.getQ()(1);
 	double anglePhi2= body2.getQ()(2);
 	double anglePhid2 = body2.getQd()(2);
+	double anglePhidd2 = body2.getQdd()(2);
 	arma::vec sP2 = revoluteJoint->sP2;
 	double cosine2 = cos(anglePhi2);
 	double sine2 = sin(anglePhi2);
+
+	double fddot = revoluteJoint->c_ddFunction.eval(t);
 
 	if(flags == 1){
 		revoluteComponents(0) = (x1 + (sP1(0)*cosine1) - (sP1(1)*sine1)) - (x2 + (sP2(0)*cosine2) - (sP2(1)*sine2));
@@ -377,9 +379,8 @@ arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,
 		revoluteComponents(1) = 0;
 	}
 	else if(flags == 3){
-
 		revoluteComponents(0) = (cosine1*sP1(0) - sine1*sP1(1))*anglePhid1*anglePhid1 - (cosine2*sP2(0) - sine2*sP2(1))*anglePhid2*anglePhid2;
-		revoluteComponents(1) = (sine1*sP1(0) + cosine1*sP1(1))*anglePhid1*anglePhid1 - (sine2*sP2(1) + cosine2*sP2(0))*anglePhid2*anglePhid2;
+		revoluteComponents(1) = (sine1*sP1(0) + cosine1*sP1(1))*anglePhid1*anglePhid1 - (sine2*sP2(0) + cosine2*sP2(1))*anglePhid2*anglePhid2;
 	}
 
 	return revoluteComponents;

@@ -21,6 +21,7 @@ class c_constraint{
 public:
 	std::string name;
 	std::string type;
+	int numBodies;
 	double id;
 	Function c_function;
 	Function c_dFunction;

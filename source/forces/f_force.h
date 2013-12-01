@@ -31,6 +31,8 @@ public:
 	virtual ~f_force(){};
 	virtual arma::vec getForce() = 0;
 	virtual void updateForce(double time, double anglePhi) = 0;
+	virtual void updateForce(double time, double x,double xDot) = 0;
+
 
 
 	virtual void print() = 0 ;
@@ -62,9 +64,30 @@ public:
 	virtual void print();
 	void toGRF();
 	virtual void updateForce(double time, double anglePhi);
+	virtual void updateForce(double time, double x, double xDot);
+
 	virtual arma::vec getForce();
 
 
+
+};
+
+class f_forceFile:public f_force{
+public:
+	arma::vec sP1;
+	double bodyID1;
+	std::string frame;
+	Function function1;
+	Function function2;
+	Function function3;
+
+	f_forceFile(const rapidjson::Value& d);
+	~f_forceFile(){}
+	virtual void print();
+	void toGRF();
+	virtual void updateForce(double time, double anglePhi);
+	virtual void updateForce(double time, double x,double xDot);
+	virtual arma::vec getForce();
 
 };
 
@@ -77,6 +100,8 @@ public:
 	~f_torque(){}
 	virtual void print();
 	virtual void updateForce(double time, double anglePhi);
+	virtual void updateForce(double time, double x, double xDot);
+
 	virtual arma::vec getForce();
 
 };

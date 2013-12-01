@@ -52,11 +52,11 @@ arma::mat Body::getA(){
 	return A;
 }
 
-arma::mat Body::getB(){
-	B(0,0)=-sin(q(2));
-	B(0,1)=-cos(q(2));
-	B(1,0)=cos(q(2));
-	B(1,1)=-sin(q(2));
+arma::mat Body::getB(double anglePhi){
+	B(0,0)=-sin(anglePhi);
+	B(0,1)=-cos(anglePhi);
+	B(1,0)=cos(anglePhi);
+	B(1,1)=-sin(anglePhi);
 	return B;
 }
 

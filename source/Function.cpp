@@ -6,7 +6,7 @@
  */
 #include "symbolicc++.h"
 #include "Function.h"
-
+#include <armadillo>
 
 
 #define sim2D_pi 3.141592653589793
@@ -47,6 +47,11 @@ double Function::eval(double val){
 double Function::eval(double time, double angle){
 	t = time;
 	anglePhi = angle;
+	return p.Eval();
+}
+double Function::evalX(double time, double xPos){
+	x = xPos;
+	t = time;
 	return p.Eval();
 }
 

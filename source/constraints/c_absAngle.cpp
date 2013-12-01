@@ -10,6 +10,7 @@ c_absAngle::c_absAngle(const rapidjson::Value& d)
 :	c_constraint(d),
  	bodyID1(d["body1"].GetDouble())
 {
+	c_constraint::numBodies = 1;
 
 }
 

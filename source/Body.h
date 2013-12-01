@@ -44,7 +44,7 @@ public:
 	arma::vec getQd(){return qd;}
 	arma::vec getQdd(){return qdd;}
 	arma::mat getA();
-	arma::mat getB();
+	arma::mat getB(double anglePhi);
 
 	//Setters
 

@@ -32,6 +32,7 @@ public:
 	void setFunction(std::string function);
 	double eval(double val);
 	double eval(double time, double anglePhi);
+	double evalX(double time,double xPos);
 	double eval2(double yVal);
 
 

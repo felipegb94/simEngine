@@ -1,9 +1,10 @@
 /*
- * project1.cpp
+ * project2.cpp
  *
- *  Created on: Nov 5, 2013
+ *  Created on: Nov 29, 2013
  *      Author: pipe
  */
+
 
 #include <iostream>
 #include <fstream>
@@ -11,6 +12,7 @@
 #include <vector>
 #include <armadillo>
 #include "jsonFunctions.h"
+
 #include "jsonParser.h"
 #include "rapidjson/document.h"
 #include "Body.h"
@@ -23,9 +25,9 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
 
+#include "f_force.h"
+
 using namespace rapidjson;
-
-
 
 using namespace std;
 
@@ -34,21 +36,13 @@ int main(int argc, char** argv){
 
 	timer.tic();
 
-	cout << "In this program I'm assuming that the given json model.adm file will follow a certain format, where keys will have an expected name." <<endl;
-	//cout << "If no information is displaying after this line that means that you didn't input the two integer arguments for bodyID and constraintID." <<endl;
-	//double constraintID = double(atof(argv[1]));
+	cout << "Project 2 : " << endl;
 
-	cout << "Start of Assignment" <<endl;
-
-
-	MyJsonDocument d = parseJSON("models/dPend.acf");
-
+	MyJsonDocument d = parseJSON("models/sliderCrank.acf");
 	string simulation = string(d["simulation"].GetString());
 	double tend = d["tend"].GetDouble();
 	double stepSize = d["stepSize"].GetDouble();
 	double outputSteps = d["outputSteps"].GetDouble();
-
-
 	cout << "Simulation = "  + simulation <<endl;
 	cout << "tend = ";
 	cout << tend << endl;
@@ -57,22 +51,26 @@ int main(int argc, char** argv){
 	cout << "outputSteps = ";
 	cout << outputSteps << endl;
 
+	MyJsonDocument d2 = parseJSON("models/sliderCrank.adm");
+	Model m(d2, simulation, tend,outputSteps,stepSize);
+	m.setSimulationType(simulation);
+	m.setStepSize(stepSize);
+	m.setTEnd(tend);
+	m.setOutputSteps(outputSteps);
+	m.solveD();
 
-	//static const char* kTypeNames[] = { "Null", "False", "True", "Object", "Array", "String", "Number" };
+	cout << "Time elapsed for dynamics analysis: ";
+	cout << timer.toc() <<endl;
 
-	MyJsonDocument d4 = parseJSON("models/dPend.adm");
-	cout << "parsing is fine" << endl;
-	Model m(d4, simulation, tend,outputSteps,stepSize);
+	arma::vec sp1 = arma::zeros(2);
 
-	//Set simulation properties (type of simulation, stepsize, outputsteps, tend)
-
-
-
-	m.solveK();
-
+	sp1(0) = 0;
+	sp1(1) = 0;
 	int bodyID = 2;
 	double spX = 3;
 	double spY = 0;
+
+	std::vector<arma::vec> reactionForces = m.getReactionForces(1,1,sp1);
 
 	std::vector<arma::vec> qgen = m.getQList();
 	std::vector<arma::vec> qQ = m.getQList(bodyID,spX,spY);
@@ -82,6 +80,8 @@ int main(int argc, char** argv){
 
 	std::vector<arma::vec> qddgen = m.getQddList();
 	std::vector<arma::vec> qddQ = m.getQddList(bodyID,spX,spY);
+
+	std::vector<arma::vec> lambdas = m.getLambdaList();
 
 
 
@@ -111,31 +111,33 @@ int main(int argc, char** argv){
 	Value plot4(kArrayType);
 	Value plot4X(kArrayType);
     Value plot4Y(kArrayType);
-
-	for(int i = 0; i <= m.getSimulationSteps(); i++){
+    std::cout << "data"<<std::endl;
+	for(int i = 0; i < m.getSimulationSteps(); i++){
 
 		xVelPlot[0][i] = m.getStepSize()*i;
-		xVelPlot[1][i] = qddQ.at(i)(m.getBodies().at(1).start+2);
+		xVelPlot[1][i] = qdgen.at(i)(2);
 		plot1X.PushBack(xVelPlot[0][i],allocator);
 		plot1Y.PushBack(xVelPlot[1][i],allocator);
 
 		yVelPlot[0][i] = m.getStepSize()*i;
-		yVelPlot[1][i] = qdQ.at(i)(m.getBodies().at(1).start+1);
+		yVelPlot[1][i] = qgen.at(i)(6);
 		plot2X.PushBack(yVelPlot[0][i],allocator);
 		plot2Y.PushBack(yVelPlot[1][i],allocator);
 
 		xAccPlot[0][i] = m.getStepSize()*i;
-		xAccPlot[1][i] = qddQ.at(i)(m.getBodies().at(1).start);
+		xAccPlot[1][i] = qdgen.at(i)(6);
 		plot3X.PushBack(xAccPlot[0][i],allocator);
 		plot3Y.PushBack(xAccPlot[1][i],allocator);
 
 		yAccPlot[0][i] = m.getStepSize()*i;
-		yAccPlot[1][i] = qddQ.at(i)(m.getBodies().at(1).start+1);
+		yAccPlot[1][i] = reactionForces.at(i)(0);
 		plot4X.PushBack(yAccPlot[0][i],allocator);
 		plot4Y.PushBack(yAccPlot[1][i],allocator);
 
 
 	}
+    std::cout << "data2"<<std::endl;
+
 	plot1.PushBack(plot1X,allocator);
 	plot1.PushBack(plot1Y,allocator);
 
@@ -152,34 +154,28 @@ int main(int argc, char** argv){
 	doc.AddMember("Plot2",plot2,allocator);
 	doc.AddMember("Plot3",plot3,allocator);
 	doc.AddMember("Plot4",plot4,allocator);
+    std::cout << "data"<<std::endl;
 
 	jsonFunctions json;
 	json.save(doc);
+    std::cout << "data"<<std::endl;
 
-	cout << "took " << timer.toc() << " seconds for part 2" << endl;
 	timer.tic();
 	system( "python ../../repos/simEngine/python/plot2D.py" );
 
 
 	cout << "took " << timer.toc() << " seconds to plot" << endl;
+
 	ofstream outputFile;
-	outputFile.open("dPend.res");
+	outputFile.open("sliderCrank.res");
 	for (int i = 0; i < m.getSimulationSteps();i++){
 
-		outputFile << "t = " << i*m.getStepSize() << ", xQ(" << i*m.getStepSize() << ") = " << qQ.at(i)(3);
-		outputFile << ", yQ(" << i*m.getStepSize() << ") = " << qQ.at(i)(4);
-		outputFile << ", anglephiQ(" << i*m.getStepSize() << ") = " << qQ.at(i)(5);
+		outputFile << "t = " << i*m.getStepSize() << ", q(" << i*m.getStepSize() << ") = " << qgen.at(i).t();
+		outputFile << ", qd(" << i*m.getStepSize() << ") = " << qdgen.at(i).t();
+		outputFile << ", qdd(" << i*m.getStepSize() << ") = " << qddgen.at(i).t();
+		outputFile << ", lamda(" << i*m.getStepSize() << ") = " << lambdas.at(i).t() << endl;
 
-		outputFile << ", xdQ(" << i*m.getStepSize() << ") = " << qdQ.at(i)(3);
-		outputFile << ", ydQ(" << i*m.getStepSize() << ") = " << qdQ.at(i)(4);
-		outputFile << ", anglephidQ(" << i*m.getStepSize() << ") = " << qdQ.at(i)(5);
-
-		outputFile << ", xddQ(" << i*m.getStepSize() << ") = " << qddQ.at(i)(3);
-		outputFile << ", yddQ(" << i*m.getStepSize() << ") = " << qddQ.at(i)(4);
-		outputFile << ", anglephiddQ(" << i*m.getStepSize() << ") = " << qddQ.at(i)(5) << endl;
 	}
 
 
-
-  return 0;
 }
