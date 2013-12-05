@@ -16,7 +16,7 @@
 
 
 Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputsteps,double stepsize)
-:gravity("0 -9.81"),
+:gravity("9.81 0"),
  name(d["name"].GetString()),
  t(0.0),
  BETA(0.3025),
@@ -78,12 +78,13 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 		else if(std::string(v["type"].GetString()) == "RelativeX"){
 			constraints.push_back(new c_relX(v));
 			numConstraints++;
+			numConstraints++;
 
 		}
 		else if(std::string(v["type"].GetString()) == "RelativeY"){
 			constraints.push_back(new c_relY(v));
 			numConstraints++;
-
+			numConstraints++;
 		}
 		else if(std::string(v["type"].GetString()) == "RelativeDistance"){
 			constraints.push_back(new c_relDist(v));
@@ -120,8 +121,9 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 			}
 		}
 	}
-	forces.at(1)->print();
+	std::cout << "here"<<std::endl;
 
+	//forces.at(1)->print();
 
 	//Initialize matrices and vectors
 	qCurr.set_size(bodies.size()*3);
@@ -199,7 +201,6 @@ void Model::solveD(){
 	QAGamma = arma::join_cols(QACurr,gamma);
 	arma::mat phi_qT = phi_qCurr.t();
 	arma::mat J = join_rows(join_cols(M,phi_qCurr),join_cols(phi_qT,zeros(numConstraints,numConstraints)));
-	//std::cout << J <<std::endl;
 	qddLambda = arma::solve(J,QAGamma);
 	qddCurr = qddLambda.rows(0,(bodies.size()*3) -1);
 	lambdaCurr = qddLambda.rows(bodies.size()*3,qddLambda.n_elem-1);
@@ -211,14 +212,15 @@ void Model::solveD(){
 	phi_q_list.push_back(phi_qCurr);
 
 	int maxIterations = 30;
-	double tolerance = pow(10.0,-8.0);
+	double tolerance = pow(10.0,-10.0);
 
 	/**
 	 * Start time iterations
 	 */
 	t += stepSize;
+
 	for(int i = 1; i <= simulationSteps;i++){
-		//	std::cout << "time" << t << std::endl;
+			std::cout << "time" << t << std::endl;
 		updateQ();
 		updateQd();
 		updateQdd();
@@ -281,12 +283,7 @@ void Model::solveD(){
 		qdd_list.push_back(qddCurr);
 		lambda_list.push_back(lambdaCurr);
 		phi_q_list.push_back(phi_qCurr);
-		arma::vec slider = arma::zeros(3);
-		slider(0) = qCurr(6);
-		slider(1) = qCurr(7);
-		slider(2) = qCurr(8);
 
-		std::cout << forces.at(1)->getForce() << std::endl;
 
 
 		t+=stepSize;

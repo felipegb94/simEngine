@@ -61,10 +61,7 @@ void f_forceFile::updateForce(double time, double x, double xDot){
 		forces(0) = function2.evalX(time,x);
 	}
 	else if(x <= 5.5){
-		std::cout <<"x = "<< x << std::endl;
 		forces(0) = function3.evalX(time,x);
-		std::cout <<"force(0) = "<< forces(0) << std::endl;
-
 	}
 	else{
 		forces(0) = 0;

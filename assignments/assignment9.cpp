@@ -151,6 +151,8 @@ int main(int argc, char** argv){
 	m.setStepSize(stepSize);
 	m.setTEnd(tend);
 	m.setOutputSteps(outputSteps);
+	cout << "start dynamics" << endl;
+
 	m.solveD();
 	arma::vec sp1 = arma::zeros(2);
 	sp1(0) = -1;

@@ -12,13 +12,6 @@ c_absDist::c_absDist(const rapidjson::Value& d)
  	bodyID1(d["body1"].GetDouble())
 {
 
-	const rapidjson::Value& b = d["Pground"];
-	std::vector<double> pGroundTemp;
-
-	for(rapidjson::SizeType i = 0; i < b.Size(); i++){
-			pGroundTemp.push_back(b[i].GetDouble());
-		}
-	pGround = pGroundTemp;
 
 	const rapidjson::Value& b2 = d["sP1"];
 	std::vector<double> sP1Temp;
@@ -41,13 +34,6 @@ void c_absDist::print(){
 	}
 	std::cout<<"]"<<std::endl;
 
-	std::cout << "Constraint pGround = [";
-
-	for(std::vector<int>::size_type i = 0; i != pGround.size(); i++){
-		std::cout << pGround[i];
-		std::cout << ",";
-	}
-	std::cout<<"]"<<std::endl;
 
 }
 

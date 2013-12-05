@@ -47,7 +47,12 @@ arma::vec Solver::getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *c
 
 		}
 		else if(type == "AbsoluteDistance"){
-
+			c_absDist* absDist =  static_cast<c_absDist*>(constraints->at(i));
+			int bodyID = (int) absDist->bodyID1;
+			Body body = bodies->at(bodyID-1);
+			double distPhi = getAbsDist(absDist,body,t,flags);
+			phi(counter) = distPhi;
+			counter++;
 		}
 		else if(type == "RevoluteJoint"){
 			c_revJoint* revJoint =  static_cast<c_revJoint*>(constraints->at(i));
@@ -62,6 +67,15 @@ arma::vec Solver::getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *c
 			counter++;
 			phi(counter) = revJointPhi(1);
 			counter++;
+
+		}
+		else if(type == "RelativeX"){
+
+		}
+		else if(type == "RelativeY"){
+
+		}
+		else if(type == "RelativeDistance"){
 
 		}
 	}
@@ -115,7 +129,16 @@ arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint
 				counter++;
 			}
 			else if(type == "AbsoluteDistance"){
-
+				c_absDist* absDist =  static_cast<c_absDist*>(constraints->at(i));
+				int bodyID = (int) absDist->bodyID1;
+				Body body = bodies->at(bodyID-1);
+				arma::rowvec distance_q = getAbsDist_jac(absDist,body,t);
+				int col = body.start;
+				int row = counter;
+				phi_q(row,col) = distance_q(0);
+				phi_q(row,col+1) = distance_q(1);
+				phi_q(row,col+2) = distance_q(2);
+				counter++;
 			}
 			else if(type == "RevoluteJoint"){
 				c_revJoint* revJoint =  static_cast<c_revJoint*>(constraints->at(i));
@@ -148,10 +171,15 @@ arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint
 				phi_q(rowFor2,colFor2) = revJointPhi_q(1,3);
 				phi_q(rowFor2,colFor2+1) = revJointPhi_q(1,4);
 				phi_q(rowFor2,colFor2+2) = revJointPhi_q(1,5);
+			}
+			else if(type == "RelativeX"){
 
-				//phi_q(rowFor1,colFor1) = revJointPhi_q(0,0);
-				//phi_q(rowFor1,colFor1+1) = revJointPhi_q(1);
-				//phi_q(rowFor1,colFor1+2) = revJointPhi_q(2);
+			}
+			else if(type == "RelativeY"){
+
+			}
+			else if(type == "RelativeDistance"){
+
 			}
 		}
 
@@ -173,8 +201,6 @@ arma::vec Solver::getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *co
 			double xNu = getAbsX(absX,body,t,flags);
 			nu(counter) =xNu;
 			counter++;
-
-
 		}
 		else if(type == "AbsoluteY"){
 			c_absY* absY =  static_cast<c_absY*>(constraints->at(i));
@@ -183,7 +209,6 @@ arma::vec Solver::getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *co
 			double yNu = getAbsY(absY,body,t,flags);
             nu(counter) = yNu;
 			counter++;
-
 		}
 		else if(type == "AbsoluteAngle"){
 			c_absAngle* absAngle =  static_cast<c_absAngle*>(constraints->at(i));
@@ -192,11 +217,14 @@ arma::vec Solver::getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *co
 			double angleNu = getAbsAngle(absAngle,body,t,flags);
             nu(counter) = angleNu;
 			counter++;
-
-
 		}
 		else if(type == "AbsoluteDistance"){
-
+			c_absDist* absDist =  static_cast<c_absDist*>(constraints->at(i));
+			int bodyID = (int) absDist->bodyID1;
+			Body body = bodies->at(bodyID-1);
+			double distNu = getAbsDist(absDist,body,t,flags);
+			nu(counter) = distNu;
+			counter++;
 		}
 		else if(type == "RevoluteJoint"){
 			c_revJoint* revJoint =  static_cast<c_revJoint*>(constraints->at(i));
@@ -212,6 +240,14 @@ arma::vec Solver::getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *co
 
             nu(counter) = revJointNu(1);
 			counter++;
+		}
+		else if(type == "RelativeX"){
+
+		}
+		else if(type == "RelativeY"){
+
+		}
+		else if(type == "RelativeDistance"){
 
 		}
 	}
@@ -233,7 +269,6 @@ arma::vec Solver::getGamma(std::vector<Body>* bodies,std::vector<c_constraint*> 
 			double xGamma = getAbsX(absX,body,t,flags);
 			gamma(counter) = xGamma;
 			counter++;
-
 		}
 		else if(type == "AbsoluteY"){
 			c_absY* absY =  static_cast<c_absY*>(constraints->at(i));
@@ -254,7 +289,12 @@ arma::vec Solver::getGamma(std::vector<Body>* bodies,std::vector<c_constraint*> 
 
 		}
 		else if(type == "AbsoluteDistance"){
-
+			c_absDist* absDist =  static_cast<c_absDist*>(constraints->at(i));
+			int bodyID = (int) absDist->bodyID1;
+			Body body = bodies->at(bodyID-1);
+			double distGamma = getAbsDist(absDist,body,t,flags);
+			gamma(counter) = distGamma;
+			counter++;
 		}
 		else if(type == "RevoluteJoint"){
 			c_revJoint* revJoint =  static_cast<c_revJoint*>(constraints->at(i));
@@ -269,6 +309,15 @@ arma::vec Solver::getGamma(std::vector<Body>* bodies,std::vector<c_constraint*> 
 			counter++;
 			gamma(counter) = revJointGamma(1);
 			counter++;
+		}
+		else if(type == "RelativeX"){
+
+		}
+		else if(type == "RelativeY"){
+
+		}
+		else if(type == "RelativeDistance"){
+
 		}
 	}
 	return gamma;
@@ -290,7 +339,6 @@ double Solver::getAbsX(c_absX* absX, Body body,double t, int flags){
 		xComponent = absX->c_dFunction.eval(t);
 	}
 	else if(flags == 3){
-
 		xComponent = (((absX->sP1(0)*cosine) - absX->sP1(1)*sine)*anglePhi_d*anglePhi_d) + absX->c_ddFunction.eval(t);
 	}
 
@@ -346,6 +394,36 @@ double Solver::getAbsAngle(c_absAngle* absAngle, Body body,double t,int flags){
 
 }
 
+double Solver::getAbsDist(c_absDist* absDist, Body body,double t,int flags){
+
+	double distance;
+	double x = body.getQ()(0);
+	double y = body.getQ()(0);
+	double anglePhi = body.getQ()(2);
+	double sine = sin(anglePhi);
+	double cosine = cos(anglePhi);
+	double groundX = 0;
+	double groundY = 0;
+
+	if(flags == 1){
+		//void R2DD_ConAbsDist::Phi()	{mPhi = pow((mI->mQ(0,0)+xBarP*cos(mI->mQ(2,0))-yBarP*sin(mI->mQ(2,0))-xGroundP),2)+pow((mI->mQ(1,0)+xBarP*sin(mI->mQ(2,0))+yBarP*cos(mI->mQ(2,0))-yGroundP),2)-pow(mF,2);}
+		double xComponent = x + absDist->sP1(0)*cosine - absDist->sP1(1)*sine - groundX ;
+		double yComponent = y + absDist->sP1(0)*sine + absDist->sP1(1)*cosine - groundY;
+
+		distance =  pow(xComponent,2) + pow(yComponent,2) - pow(absDist->c_function.eval(t),2);
+	}
+	else if(flags == 2){
+		distance = 0;
+	}
+	else if(flags == 3){
+		distance = 0;
+	}
+
+
+	return distance;
+
+}
+
 arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,double t, int flags){
 
 	arma::vec revoluteComponents(2);
@@ -354,7 +432,7 @@ arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,
 	double y1= body1.getQ()(1);
 	double anglePhi1= body1.getQ()(2);
 	double anglePhid1 = body1.getQd()(2);
-	double anglePhidd1 = body1.getQd()(2);
+	double anglePhidd1 = body1.getQdd()(2);
 	arma::vec sP1 = revoluteJoint->sP1;
 	double cosine1 = cos(anglePhi1);
 	double sine1 = sin(anglePhi1);
@@ -386,6 +464,7 @@ arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,
 	return revoluteComponents;
 }
 
+
 arma::rowvec Solver::getAbsX_jac(c_absX* absX, Body body,double t){
 
 	arma::rowvec xComponents(3);
@@ -412,10 +491,23 @@ arma::rowvec Solver::getAbsAngle_jac(c_absAngle* absAngle, Body body,double t){
 	angleComponents(0) = 0;
 	angleComponents(1) = 0;
 	angleComponents(2) = 1;
-
-
 	return angleComponents;
 }
+arma::rowvec Solver::getAbsDist_jac(c_absDist* absDist, Body body,double t){
+	arma::rowvec distance(3);
+	double x = body.getQ()(0);
+	double y = body.getQ()(1);
+	double anglePhi = body.getQ()(2);
+	double sine = sin(anglePhi);
+	double cosine = cos(anglePhi);
+	double groundX = 0;
+	double groundY = 0;
+	distance(0) = x + absDist->sP1(0)*cosine - groundX ;
+	distance(1) = y + absDist->sP1(1)*sine - groundY ;
+	distance(2) = -1*distance(0)*(absDist->sP1(0)*sine - absDist->sP1(1)*cosine) + distance(1)*(absDist->sP1(0)*cosine - absDist->sP1(1)*sine);
+	return distance;
+}
+
 arma::mat Solver::getRevJoint_jac(c_revJoint* revoluteJoint, Body body1, Body body2,double t){
 	arma::mat revJoint(2,6);
 	double anglePhi1= body1.getQ()(2);
