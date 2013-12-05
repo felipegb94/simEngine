@@ -204,6 +204,7 @@ int main(int argc, char** argv){
     Value plot4Y(kArrayType);
     std::cout << "data"<<std::endl;
 	for(int i = 0; i < m.getSimulationSteps(); i++){
+	    std::cout << "assignment9"<<std::endl;
 
 		xVelPlot[0][i] = m.getStepSize()*i;
 		xVelPlot[1][i] = reactionForces.at(i)(0);
