@@ -152,7 +152,8 @@ void Model::solveK(){
 	double goal = 0.37;
 
 	for(int i = 0; i <= simulationSteps;i++){
-		for(int i = 0; i < maxIterations; i++){
+		bool converge = false;
+		for(int j = 0; j < maxIterations; j++){
 			phiCurr = solve.getPhi(&bodies,&constraints,t,numConstraints);
 			phi_qCurr = solve.getJacobian(&bodies,&constraints,t,numConstraints);
 
@@ -161,10 +162,16 @@ void Model::solveK(){
 			updateQ();
 
 			if(arma::norm(correction,2) <= tolerance){
+				converge = true;
 				break;
 			}
 
 		}
+		if(!converge){
+			std::cout << "Failed to converge after max itr at " << t  << std::endl;
+			exit(1);
+		}
+
 		phi_qCurr = solve.getJacobian(&bodies,&constraints,t,numConstraints);
 		q_list.push_back(qCurr);
 
@@ -180,7 +187,7 @@ void Model::solveK(){
 		updateQdd();
 		qdd_list.push_back(qddCurr);
 		std::cout << "Time = " << t << std::endl;
-		std::cout << qddCurr << std::endl;
+		std::cout << gamma << std::endl;
 
 		t+=stepSize;
 
@@ -205,14 +212,17 @@ void Model::solveD(){
 	qddCurr = qddLambda.rows(0,(bodies.size()*3) -1);
 	lambdaCurr = qddLambda.rows(bodies.size()*3,qddLambda.n_elem-1);
 
+	updateQdd();
+
 	q_list.push_back(qCurr);
 	qd_list.push_back(qdCurr);
 	qdd_list.push_back(qddCurr);
 	lambda_list.push_back(lambdaCurr);
 	phi_q_list.push_back(phi_qCurr);
-
-	int maxIterations = 30;
-	double tolerance = pow(10.0,-10.0);
+	force_list.push_back(QACurr);
+	//std::cout << QACurr << std::endl;
+	int maxIterations = 100;
+	double tolerance = 1.0e-7;
 
 	/**
 	 * Start time iterations
@@ -220,17 +230,18 @@ void Model::solveD(){
 	t += stepSize;
 
 	for(int i = 1; i <= simulationSteps;i++){
-			std::cout << "time" << t << std::endl;
 		updateQ();
-		updateQd();
+	    updateQd();
 		updateQdd();
 		phiCurr = solve.getPhi(&bodies,&constraints,t,numConstraints);
 		arma::vec q0 = qCurr;
 		arma::vec qd0 = qdCurr;
 		arma::vec qdd0 = qddCurr;
 		//std::cout << "initial acc = " << qdd0 <<std::endl;
+		bool converge = false;
+		arma::vec correction;
 
-		for(int i = 0; i < 10; i++){
+		for(int j = 0; j < maxIterations; j++){
 			/**
 			 *Newmarks Method
 			 */
@@ -239,11 +250,11 @@ void Model::solveD(){
 			//std::cout << qCurr << std::endl;
 			qdCurr = qd0 + stepSize*((1-GAMMA)*qdd0 + GAMMA*qddCurr);
 			//std::cout << qdCurr << std::endl;
-			if(i == 0){
+			//if(j == 0){
 				phi_qCurr = solve.getJacobian(&bodies,&constraints,t,numConstraints);
 				phi_qT = phi_qCurr.t();
 				J = join_rows(join_cols(M,phi_qCurr),join_cols(phi_qT,zeros(numConstraints,numConstraints)));
-			}
+			//}
 			//Update vectors and matrices with our new positions and velocities
 			updateQ();
 			updateQd();
@@ -258,15 +269,24 @@ void Model::solveD(){
 
 			arma::mat psi_omega = arma::join_cols(psi,omega);
 			//std::cout << psi_omega << std::endl;
-			arma::vec correction = arma::solve(J,psi_omega);
+			correction = arma::solve(J,psi_omega);
 			//std::cout << correction << std::endl;
 
 			qddCurr -= correction.rows(0,(bodies.size()*3) -1);
 			lambdaCurr -= correction.rows(bodies.size()*3,correction.n_elem-1);
 
-			if(arma::norm(correction,2) <= tolerance){
+			if(arma::norm(correction.rows(0,(bodies.size()*3) -1),"inf") <= tolerance){
+				std::cout << "Converging at " << j << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3)-1),"inf")<<  std::endl;
+				converge = true;
 				break;
 			}
+
+		}
+		if(!converge){
+			std::cout << phiCurr<<std::endl;
+
+			std::cout << "Failed to converge at t=" << t << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3) -1),"inf")<< std::endl;
+            //exit(1);
 
 		}
 
@@ -283,9 +303,7 @@ void Model::solveD(){
 		qdd_list.push_back(qddCurr);
 		lambda_list.push_back(lambdaCurr);
 		phi_q_list.push_back(phi_qCurr);
-
-
-
+		force_list.push_back(QACurr);
 		t+=stepSize;
 	}
 
@@ -312,8 +330,8 @@ void Model::setInitCond(){
 	std::cout<<qdCurr<<std::endl;
 	updateQ();
 	updateQd();
-	q_list.push_back(qCurr);
-	qd_list.push_back(qdCurr);
+	//q_list.push_back(qCurr);
+	//qd_list.push_back(qdCurr);
 }
 void Model::updateQ(){
 	for(int i = 0; i < bodies.size(); i++){
@@ -451,6 +469,7 @@ const std::vector<arma::vec>& Model::getQddList(int bodyID, double spX, double s
 
 		qddp_list.at(i)(b.start) = rdd(0) - cosine*spX*anglePhid*anglePhid - sine*spX*anglePhidd + sine*spY*anglePhid*anglePhid - cosine*spY*anglePhidd;
 		qddp_list.at(i)(b.start+1) = rdd(1)  - sine*spX*anglePhid*anglePhid + cosine*spX*anglePhidd - cosine*spY*anglePhid*anglePhid - sine*spY*anglePhidd;
+		//std::cout << rdd(1) <<  " " << anglePhi << " "<< sine <<  " " <<cosine <<  " " << anglePhid <<  " " <<anglePhidd <<  " " <<spX <<  " " <<spY <<  " " <<std::endl;
 
 	}
 	return qddp_list;
@@ -490,7 +509,6 @@ const std::vector<arma::vec>& Model::getReactionForces(int constraintID, int bod
 
 			tK = sp1.t()*B.t()*fK - phi_qPhi.t()*lambdaK;
 			reactionF(2) = tK(0);
-
 			reactionForces_list.push_back(reactionF);
 
 
@@ -499,7 +517,7 @@ const std::vector<arma::vec>& Model::getReactionForces(int constraintID, int bod
 	}
 	else{
 		Body b1 = bodies.at(bodyID1-1);
-		Body b2 = bodies.at(bodyID2-1);
+		//Body b2 = bodies.at(bodyID2-1);
 
 		for(int i = 0; i <= simulationSteps;i++){
 			phi_qCurr = phi_q_list.at(i);

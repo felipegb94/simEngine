@@ -423,6 +423,111 @@ double Solver::getAbsDist(c_absDist* absDist, Body body,double t,int flags){
 	return distance;
 
 }
+double Solver::getRelX(c_relX* relX, Body body1, Body body2,double t, int flags){
+
+	double relXComponent = 0;
+
+	double x1 = body1.getQ()(0);
+	double y1= body1.getQ()(1);
+	double anglePhi1= body1.getQ()(2);
+	double anglePhid1 = body1.getQd()(2);
+	double anglePhidd1 = body1.getQdd()(2);
+	arma::vec sP1 = relX->sP1;
+	double cosine1 = cos(anglePhi1);
+	double sine1 = sin(anglePhi1);
+
+	double x2= body2.getQ()(0);
+	double y2= body2.getQ()(1);
+	double anglePhi2= body2.getQ()(2);
+	double anglePhid2 = body2.getQd()(2);
+	double anglePhidd2 = body2.getQdd()(2);
+	arma::vec sP2 = relX->sP2;
+	double cosine2 = cos(anglePhi2);
+	double sine2 = sin(anglePhi2);
+
+	if(flags == 1){
+		relXComponent = x2 + sP2(0)*cosine2 - sP2(1)*sine2 - x1 - sP1(0)*cosine1 + sP1(1)*sine1 - relX->c_function.eval(t);
+	}
+	else if(flags == 2){
+		relXComponent = relX->c_dFunction.eval(t);
+	}
+	else if(flags == 3){
+		relXComponent = -1*(sP1(0)*cosine1 - sP1(1)*sine1)*anglePhid1*anglePhid1 + (sP2(0)*cosine2 - sP2(1)*sine2)*pow(anglePhid2,2) + relX->c_ddFunction.eval(t);
+	}
+
+	return relXComponent;
+}
+double Solver::getRelY(c_relY* relY, Body body1, Body body2,double t, int flags){
+
+	double relYComponent = 0;
+
+	double x1 = body1.getQ()(0);
+	double y1= body1.getQ()(1);
+	double anglePhi1= body1.getQ()(2);
+	double anglePhid1 = body1.getQd()(2);
+	double anglePhidd1 = body1.getQdd()(2);
+	arma::vec sP1 = relY->sP1;
+	double cosine1 = cos(anglePhi1);
+	double sine1 = sin(anglePhi1);
+
+	double x2= body2.getQ()(0);
+	double y2= body2.getQ()(1);
+	double anglePhi2= body2.getQ()(2);
+	double anglePhid2 = body2.getQd()(2);
+	double anglePhidd2 = body2.getQdd()(2);
+	arma::vec sP2 = relY->sP2;
+	double cosine2 = cos(anglePhi2);
+	double sine2 = sin(anglePhi2);
+
+
+	if(flags == 1){
+		relYComponent = y2 + sP2(0)*sine2 + sP2(1)*cosine2 - y1 - sP1(0)*sine1 - sP1(1)*cosine1 - relY->c_dFunction.eval(t);
+	}
+	else if(flags == 2){
+		relYComponent = relY->c_dFunction.eval(t);
+	}
+	else if(flags == 3){
+		relYComponent = -1*(sP1(0)*sine1 + sP1(1)*cosine1)*pow(anglePhid1,2) + (sP2(0)*sine2 + sP2(1)*cosine2)*pow(anglePhid2,2) + relY->c_ddFunction.eval(t) ;
+	}
+
+	return relYComponent;
+}
+double Solver::getRelDist(c_relDist* relDist, Body body1, Body body2,double t, int flags){
+
+	double relDistComponent = 0;
+
+	double x1 = body1.getQ()(0);
+	double y1= body1.getQ()(1);
+	double anglePhi1= body1.getQ()(2);
+	double anglePhid1 = body1.getQd()(2);
+	double anglePhidd1 = body1.getQdd()(2);
+	arma::vec sP1 = relDist->sP1;
+	double cosine1 = cos(anglePhi1);
+	double sine1 = sin(anglePhi1);
+
+	double x2= body2.getQ()(0);
+	double y2= body2.getQ()(1);
+	double anglePhi2= body2.getQ()(2);
+	double anglePhid2 = body2.getQd()(2);
+	double anglePhidd2 = body2.getQdd()(2);
+	arma::vec sP2 = relDist->sP2;
+	double cosine2 = cos(anglePhi2);
+	double sine2 = sin(anglePhi2);
+
+	if(flags == 1){
+		double xComponent = x1 + sP1(0)*cosine1 - sP1(1)*sine1 - x2 - sP2(0)*cosine2 + sP2(1)*sine2;
+		double yComponent = y1 + sP1(0)*sine1 + sP1(1)*cosine1 - y2 - sP2(0)*sine2 - sP2(1)*cosine2;
+		relDistComponent = pow(xComponent,2) + pow(yComponent,2) - pow(relDist->c_function.eval(t),2);
+	}
+	else if(flags == 2){
+		relDistComponent = relDist->c_dFunction.eval(t);
+	}
+	else if(flags == 3){
+		relDistComponent = 0;
+	}
+
+	return relDistComponent;
+}
 
 arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,double t, int flags){
 
@@ -507,6 +612,79 @@ arma::rowvec Solver::getAbsDist_jac(c_absDist* absDist, Body body,double t){
 	distance(2) = -1*distance(0)*(absDist->sP1(0)*sine - absDist->sP1(1)*cosine) + distance(1)*(absDist->sP1(0)*cosine - absDist->sP1(1)*sine);
 	return distance;
 }
+arma::rowvec Solver::getRelX_jac(c_relX* relX, Body body1, Body body2,double t){
+
+	arma::rowvec relXComponents(3);
+
+	double x1 = body1.getQ()(0);
+	double y1= body1.getQ()(1);
+	double anglePhi1= body1.getQ()(2);
+	double anglePhid1 = body1.getQd()(2);
+	double anglePhidd1 = body1.getQdd()(2);
+	arma::vec sP1 = relX->sP1;
+	double cosine1 = cos(anglePhi1);
+	double sine1 = sin(anglePhi1);
+
+	double x2= body2.getQ()(0);
+	double y2= body2.getQ()(1);
+	double anglePhi2= body2.getQ()(2);
+	double anglePhid2 = body2.getQd()(2);
+	double anglePhidd2 = body2.getQdd()(2);
+	arma::vec sP2 = relX->sP2;
+	double cosine2 = cos(anglePhi2);
+	double sine2 = sin(anglePhi2);
+
+	return relXComponents;
+}
+arma::rowvec Solver::getRelY_jac(c_relY* relY, Body body1, Body body2,double t){
+
+	arma::rowvec relYComponents(3);
+
+	double x1 = body1.getQ()(0);
+	double y1= body1.getQ()(1);
+	double anglePhi1= body1.getQ()(2);
+	double anglePhid1 = body1.getQd()(2);
+	double anglePhidd1 = body1.getQdd()(2);
+	arma::vec sP1 = relY->sP1;
+	double cosine1 = cos(anglePhi1);
+	double sine1 = sin(anglePhi1);
+
+	double x2= body2.getQ()(0);
+	double y2= body2.getQ()(1);
+	double anglePhi2= body2.getQ()(2);
+	double anglePhid2 = body2.getQd()(2);
+	double anglePhidd2 = body2.getQdd()(2);
+	arma::vec sP2 = relY->sP2;
+	double cosine2 = cos(anglePhi2);
+	double sine2 = sin(anglePhi2);
+
+	return relYComponents;
+}
+arma::rowvec Solver::getRelDist_jac(c_relDist* relDist, Body body1, Body body2,double t){
+
+	arma::rowvec relDistComponents(3);
+
+	double x1 = body1.getQ()(0);
+	double y1= body1.getQ()(1);
+	double anglePhi1= body1.getQ()(2);
+	double anglePhid1 = body1.getQd()(2);
+	double anglePhidd1 = body1.getQdd()(2);
+	arma::vec sP1 = relDist->sP1;
+	double cosine1 = cos(anglePhi1);
+	double sine1 = sin(anglePhi1);
+
+	double x2= body2.getQ()(0);
+	double y2= body2.getQ()(1);
+	double anglePhi2= body2.getQ()(2);
+	double anglePhid2 = body2.getQd()(2);
+	double anglePhidd2 = body2.getQdd()(2);
+	arma::vec sP2 = relDist->sP2;
+	double cosine2 = cos(anglePhi2);
+	double sine2 = sin(anglePhi2);
+
+	return relDistComponents;
+}
+
 
 arma::mat Solver::getRevJoint_jac(c_revJoint* revoluteJoint, Body body1, Body body2,double t){
 	arma::mat revJoint(2,6);

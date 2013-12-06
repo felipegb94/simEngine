@@ -6,7 +6,7 @@
  */
 
 #include "f_force.h"
-
+#include <cmath>
 f_forceFile::f_forceFile(const rapidjson::Value& d)
 :	f_force(d),
 	frame(std::string(d["frame"].GetString()))
@@ -52,7 +52,7 @@ void f_forceFile::updateForce(double time,double anglePhi){
 	//std::cout << "wrong updateFORCE!!!!!"<<std::endl;
 }
 void f_forceFile::updateForce(double time, double x, double xDot){
-	if(xDot <= 0){
+	/**if(xDot <= 0){
 
 		forces(0) = 0;
 	}
@@ -69,6 +69,23 @@ void f_forceFile::updateForce(double time, double x, double xDot){
 
 	forces(1) = 0;
 	forces(2) = 0;
+**/
+	forces = arma::zeros(3);
+	if(xDot <= 0){
+		return;
+	}
+	if(x > 5.5 || x < 1.5){
+		return;
+	}
+	if(x > 5){
+		forces(0) = -110000*(1 - sin(2*M_PI*(x - 5.25)));
+	}
+	else{
+		forces(0) = 62857 - 282857/(6-x);
+	}
+	std::cout <<time << " " << forces(0) << std::endl;
+
+
 
 }
 arma::vec f_forceFile::getForce(){

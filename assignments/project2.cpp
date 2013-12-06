@@ -115,7 +115,7 @@ int main(int argc, char** argv){
 	for(int i = 0; i < m.getSimulationSteps(); i++){
 
 		xVelPlot[0][i] = m.getStepSize()*i;
-		xVelPlot[1][i] = qdgen.at(i)(2);
+		xVelPlot[1][i] = qdgen.at(i)(m.getBodies().at(0).start+2);
 		plot1X.PushBack(xVelPlot[0][i],allocator);
 		plot1Y.PushBack(xVelPlot[1][i],allocator);
 
@@ -147,13 +147,13 @@ int main(int argc, char** argv){
 	plot3.PushBack(plot3X,allocator);
 	plot3.PushBack(plot3Y,allocator);
 
-	plot4.PushBack(plot4X,allocator);
-	plot4.PushBack(plot4Y,allocator);
+	//plot4.PushBack(plot4X,allocator);
+	//plot4.PushBack(plot4Y,allocator);
 
 	doc.AddMember("Plot1",plot1,allocator);
 	doc.AddMember("Plot2",plot2,allocator);
 	doc.AddMember("Plot3",plot3,allocator);
-	doc.AddMember("Plot4",plot4,allocator);
+	//doc.AddMember("Plot4",plot4,allocator);
     std::cout << "data"<<std::endl;
 
 	jsonFunctions json;

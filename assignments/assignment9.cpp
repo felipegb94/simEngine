@@ -155,15 +155,15 @@ int main(int argc, char** argv){
 
 	m.solveD();
 	arma::vec sp1 = arma::zeros(2);
-	sp1(0) = -1;
+	sp1(0) = 1;
 	sp1(1) = 0;
 	cout << "Time elapsed for part 2: ";
 	cout << timer.toc() <<endl;
 	int bodyID = 2;
 	double spX = 3;
 	double spY = 0;
-
-	std::vector<arma::vec> reactionForces = m.getReactionForces(3,2,sp1,2);
+	std::vector<arma::vec> forces = m.getForces();
+	std::vector<arma::vec> reactionForces = m.getReactionForces(3,2,sp1);
 
 	std::vector<arma::vec> qgen = m.getQList();
 	std::vector<arma::vec> qQ = m.getQList(bodyID,spX,spY);
@@ -204,7 +204,6 @@ int main(int argc, char** argv){
     Value plot4Y(kArrayType);
     std::cout << "data"<<std::endl;
 	for(int i = 0; i < m.getSimulationSteps(); i++){
-	    std::cout << "assignment9"<<std::endl;
 
 		xVelPlot[0][i] = m.getStepSize()*i;
 		xVelPlot[1][i] = reactionForces.at(i)(0);
@@ -221,10 +220,10 @@ int main(int argc, char** argv){
 		plot3X.PushBack(xAccPlot[0][i],allocator);
 		plot3Y.PushBack(xAccPlot[1][i],allocator);
 
-		yAccPlot[0][i] = m.getStepSize()*i;
-		yAccPlot[1][i] = qddQ.at(i)(m.getBodies().at(1).start+1);
-		plot4X.PushBack(yAccPlot[0][i],allocator);
-		plot4Y.PushBack(yAccPlot[1][i],allocator);
+		//yAccPlot[0][i] = m.getStepSize()*i;
+		//yAccPlot[1][i] = forces.at(i)(m.getBodies().at(1).start);
+		//plot4X.PushBack(yAccPlot[0][i],allocator);
+		//plot4Y.PushBack(yAccPlot[1][i],allocator);
 
 
 	}

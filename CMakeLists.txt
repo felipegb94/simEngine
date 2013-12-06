@@ -69,8 +69,8 @@ source/forces/f_force.h
 add_executable(gutierrez_cpp_09 assignments/assignment9.cpp  ${SOURCE_FILES})
 target_link_libraries(gutierrez_cpp_09 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
 
-add_executable(gutierrez_cpp_project1 assignments/project1.cpp  ${SOURCE_FILES})
-target_link_libraries(gutierrez_cpp_project1 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
+add_executable(gutierrez_cpp_project2 assignments/project2.cpp  ${SOURCE_FILES})
+target_link_libraries(gutierrez_cpp_project2 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
 
 #add_executable(gutierrez_cpp_project2 assignments/project2.cpp  ${SOURCE_FILES})
 #target_link_libraries(gutierrez_cpp_project2 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )

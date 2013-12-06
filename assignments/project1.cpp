@@ -71,7 +71,7 @@ int main(int argc, char** argv){
 	m.solveK();
 
 	int bodyID = 2;
-	double spX = 3;
+	double spX = 3.0;
 	double spY = 0;
 
 	std::vector<arma::vec> qgen = m.getQList();
@@ -115,17 +115,17 @@ int main(int argc, char** argv){
 	for(int i = 0; i <= m.getSimulationSteps(); i++){
 
 		xVelPlot[0][i] = m.getStepSize()*i;
-		xVelPlot[1][i] = qddQ.at(i)(m.getBodies().at(1).start+2);
+		xVelPlot[1][i] = qgen.at(i)(m.getBodies().at(1).start);
 		plot1X.PushBack(xVelPlot[0][i],allocator);
 		plot1Y.PushBack(xVelPlot[1][i],allocator);
 
 		yVelPlot[0][i] = m.getStepSize()*i;
-		yVelPlot[1][i] = qdQ.at(i)(m.getBodies().at(1).start+1);
+		yVelPlot[1][i] = qddgen.at(i)(m.getBodies().at(1).start);
 		plot2X.PushBack(yVelPlot[0][i],allocator);
 		plot2Y.PushBack(yVelPlot[1][i],allocator);
 
 		xAccPlot[0][i] = m.getStepSize()*i;
-		xAccPlot[1][i] = qddQ.at(i)(m.getBodies().at(1).start);
+		xAccPlot[1][i] = qdQ.at(i)(m.getBodies().at(1).start+1);
 		plot3X.PushBack(xAccPlot[0][i],allocator);
 		plot3Y.PushBack(xAccPlot[1][i],allocator);
 
