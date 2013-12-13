@@ -23,6 +23,7 @@ public:
 	std::string type;
 	int numBodies;
 	double id;
+	int start;
 	Function c_function;
 	Function c_dFunction;
 	Function c_ddFunction;

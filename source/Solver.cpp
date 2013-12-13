@@ -70,17 +70,44 @@ arma::vec Solver::getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *c
 
 		}
 		else if(type == "RelativeX"){
+			c_relX* relX =  static_cast<c_relX*>(constraints->at(i));
+			int bodyID1 = (int) relX->bodyID1;
+			int bodyID2 = (int) relX->bodyID2;
+
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			double relXPhi = getRelX(relX,body1,body2,t,flags);
+			phi(counter) = relXPhi;
+			counter++;
 
 		}
 		else if(type == "RelativeY"){
+			c_relY* relY =  static_cast<c_relY*>(constraints->at(i));
+			int bodyID1 = (int) relY->bodyID1;
+			int bodyID2 = (int) relY->bodyID2;
 
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			double relYPhi = getRelY(relY,body1,body2,t,flags);
+			phi(counter) = relYPhi;
+			counter++;
 		}
 		else if(type == "RelativeDistance"){
+			c_relDist* relDist =  static_cast<c_relDist*>(constraints->at(i));
+			int bodyID1 = (int) relDist->bodyID1;
+			int bodyID2 = (int) relDist->bodyID2;
 
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			double relDistPhi = getRelDist(relDist,body1,body2,t,flags);
+			phi(counter) = relDistPhi;
+			counter++;
 		}
 	}
 
-	//std::cout << phi << std::endl;
 	return phi;
 }
 arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint*> *constraints, double t,int numConstraints){
@@ -114,7 +141,6 @@ arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint
 				phi_q(row,col+1) = yPhi_q(1);
 				phi_q(row,col+2) = yPhi_q(2);
 				counter++;
-
 			}
 			else if(type == "AbsoluteAngle"){
 				c_absAngle* absAngle =  static_cast<c_absAngle*>(constraints->at(i));
@@ -173,13 +199,72 @@ arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint
 				phi_q(rowFor2,colFor2+2) = revJointPhi_q(1,5);
 			}
 			else if(type == "RelativeX"){
+				c_relX* relX =  static_cast<c_relX*>(constraints->at(i));
+				int bodyID1 = (int) relX->bodyID1;
+				int bodyID2 = (int) relX->bodyID2;
+
+				Body body1 = bodies->at(bodyID1-1);
+				Body body2 = bodies->at(bodyID2-1);
+				arma::rowvec relXPhi_q = getRelX_jac(relX,body1,body2,t);
+
+				int colFor1 = body1.start;
+				int colFor2 = body2.start;
+				int row = counter;
+				counter++;
+
+				phi_q(row,colFor1) = relXPhi_q(0);
+				phi_q(row,colFor1+1) = relXPhi_q(1);
+				phi_q(row,colFor1+2) = relXPhi_q(2);
+
+				phi_q(row,colFor2) = relXPhi_q(3);
+				phi_q(row,colFor2+1) = relXPhi_q(4);
+				phi_q(row,colFor2+2) = relXPhi_q(5);
 
 			}
 			else if(type == "RelativeY"){
+				c_relY* relY =  static_cast<c_relY*>(constraints->at(i));
+				int bodyID1 = (int) relY->bodyID1;
+				int bodyID2 = (int) relY->bodyID2;
+
+				Body body1 = bodies->at(bodyID1-1);
+				Body body2 = bodies->at(bodyID2-1);
+				arma::rowvec relYPhi_q = getRelY_jac(relY,body1,body2,t);
+
+				int colFor1 = body1.start;
+				int colFor2 = body2.start;
+				int row = counter;
+				counter++;
+
+				phi_q(row,colFor1) = relYPhi_q(0);
+				phi_q(row,colFor1+1) = relYPhi_q(1);
+				phi_q(row,colFor1+2) = relYPhi_q(2);
+
+				phi_q(row,colFor2) = relYPhi_q(3);
+				phi_q(row,colFor2+1) = relYPhi_q(4);
+				phi_q(row,colFor2+2) = relYPhi_q(5);
 
 			}
 			else if(type == "RelativeDistance"){
+				c_relDist* relDist =  static_cast<c_relDist*>(constraints->at(i));
+				int bodyID1 = (int) relDist->bodyID1;
+				int bodyID2 = (int) relDist->bodyID2;
 
+				Body body1 = bodies->at(bodyID1-1);
+				Body body2 = bodies->at(bodyID2-1);
+				arma::rowvec relDistPhi_q = getRelDist_jac(relDist,body1,body2,t);
+
+				int colFor1 = body1.start;
+				int colFor2 = body2.start;
+				int row = counter;
+				counter++;
+
+				phi_q(row,colFor1) = relDistPhi_q(0);
+				phi_q(row,colFor1+1) = relDistPhi_q(1);
+				phi_q(row,colFor1+2) = relDistPhi_q(2);
+
+				phi_q(row,colFor2) = relDistPhi_q(3);
+				phi_q(row,colFor2+1) = relDistPhi_q(4);
+				phi_q(row,colFor2+2) = relDistPhi_q(5);
 			}
 		}
 
@@ -242,13 +327,41 @@ arma::vec Solver::getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *co
 			counter++;
 		}
 		else if(type == "RelativeX"){
+			c_relX* relX =  static_cast<c_relX*>(constraints->at(i));
+			int bodyID1 = (int) relX->bodyID1;
+			int bodyID2 = (int) relX->bodyID2;
+
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			double relXNu = getRelX(relX,body1,body2,t,flags);
+			nu(counter) = relXNu;
+			counter++;
 
 		}
 		else if(type == "RelativeY"){
+			c_relY* relY =  static_cast<c_relY*>(constraints->at(i));
+			int bodyID1 = (int) relY->bodyID1;
+			int bodyID2 = (int) relY->bodyID2;
 
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			double relYNu = getRelY(relY,body1,body2,t,flags);
+			nu(counter) = relYNu;
+			counter++;
 		}
 		else if(type == "RelativeDistance"){
+			c_relDist* relDist =  static_cast<c_relDist*>(constraints->at(i));
+			int bodyID1 = (int) relDist->bodyID1;
+			int bodyID2 = (int) relDist->bodyID2;
 
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			double relDistNu = getRelDist(relDist,body1,body2,t,flags);
+			nu(counter) = relDistNu;
+			counter++;
 		}
 	}
 
@@ -311,13 +424,41 @@ arma::vec Solver::getGamma(std::vector<Body>* bodies,std::vector<c_constraint*> 
 			counter++;
 		}
 		else if(type == "RelativeX"){
+			c_relX* relX =  static_cast<c_relX*>(constraints->at(i));
+			int bodyID1 = (int) relX->bodyID1;
+			int bodyID2 = (int) relX->bodyID2;
+
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			double relXGamma = getRelX(relX,body1,body2,t,flags);
+			gamma(counter) = relXGamma;
+			counter++;
 
 		}
 		else if(type == "RelativeY"){
+			c_relY* relY =  static_cast<c_relY*>(constraints->at(i));
+			int bodyID1 = (int) relY->bodyID1;
+			int bodyID2 = (int) relY->bodyID2;
 
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			double relYGamma = getRelY(relY,body1,body2,t,flags);
+			gamma(counter) = relYGamma;
+			counter++;
 		}
 		else if(type == "RelativeDistance"){
+			c_relDist* relDist =  static_cast<c_relDist*>(constraints->at(i));
+			int bodyID1 = (int) relDist->bodyID1;
+			int bodyID2 = (int) relDist->bodyID2;
 
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			double relDistGamma = getRelDist(relDist,body1,body2,t,flags);
+			gamma(counter) = relDistGamma;
+			counter++;
 		}
 	}
 	return gamma;
@@ -614,55 +755,54 @@ arma::rowvec Solver::getAbsDist_jac(c_absDist* absDist, Body body,double t){
 }
 arma::rowvec Solver::getRelX_jac(c_relX* relX, Body body1, Body body2,double t){
 
-	arma::rowvec relXComponents(3);
+	arma::rowvec relXComponents = arma::zeros(6);
 
-	double x1 = body1.getQ()(0);
-	double y1= body1.getQ()(1);
 	double anglePhi1= body1.getQ()(2);
-	double anglePhid1 = body1.getQd()(2);
-	double anglePhidd1 = body1.getQdd()(2);
 	arma::vec sP1 = relX->sP1;
 	double cosine1 = cos(anglePhi1);
 	double sine1 = sin(anglePhi1);
 
-	double x2= body2.getQ()(0);
-	double y2= body2.getQ()(1);
 	double anglePhi2= body2.getQ()(2);
-	double anglePhid2 = body2.getQd()(2);
-	double anglePhidd2 = body2.getQdd()(2);
 	arma::vec sP2 = relX->sP2;
 	double cosine2 = cos(anglePhi2);
 	double sine2 = sin(anglePhi2);
+
+	relXComponents(0) = -1;
+	relXComponents(2) = sP1(0)*sine1 + sP1(1)*cosine1;
+
+	relXComponents(3) = 1;
+	relXComponents(5) = -1*sP2(0)*cosine2 - sP2(1)*sine2;
+
+
 
 	return relXComponents;
 }
 arma::rowvec Solver::getRelY_jac(c_relY* relY, Body body1, Body body2,double t){
 
-	arma::rowvec relYComponents(3);
+	arma::rowvec relYComponents= arma::zeros(6);
 
-	double x1 = body1.getQ()(0);
-	double y1= body1.getQ()(1);
 	double anglePhi1= body1.getQ()(2);
-	double anglePhid1 = body1.getQd()(2);
-	double anglePhidd1 = body1.getQdd()(2);
 	arma::vec sP1 = relY->sP1;
 	double cosine1 = cos(anglePhi1);
 	double sine1 = sin(anglePhi1);
 
-	double x2= body2.getQ()(0);
-	double y2= body2.getQ()(1);
+
 	double anglePhi2= body2.getQ()(2);
-	double anglePhid2 = body2.getQd()(2);
-	double anglePhidd2 = body2.getQdd()(2);
 	arma::vec sP2 = relY->sP2;
 	double cosine2 = cos(anglePhi2);
 	double sine2 = sin(anglePhi2);
+
+	relYComponents(1) = -1;
+	relYComponents(2) = -sP1(0)*cosine1 + sP1(1)*sine1;
+
+	relYComponents(4) = 1;
+	relYComponents(5) = sP2(0)*cosine2 - sP2(1)*sine2;
 
 	return relYComponents;
 }
 arma::rowvec Solver::getRelDist_jac(c_relDist* relDist, Body body1, Body body2,double t){
 
-	arma::rowvec relDistComponents(3);
+	arma::rowvec relDistComponents= arma::zeros(6);
 
 	double x1 = body1.getQ()(0);
 	double y1= body1.getQ()(1);

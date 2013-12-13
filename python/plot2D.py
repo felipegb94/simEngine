@@ -13,7 +13,7 @@ while i < len(data)+1:
     if i == 1:
         yLabel = "Angular Velocity of flywheel"
     elif i == 2:
-        yLabel = "Position of Slider "
+        yLabel = "Y pos of point P&Q "
     elif i == 3:
         yLabel = "Velocity of Slider"
     elif i == 4:
@@ -29,7 +29,7 @@ while i < len(data)+1:
     plt.xlabel("Time")
     plt.ylabel(yLabel)
     plt.savefig("plots/"+plotName)
-    plt.clf()
+    #plt.clf()
     
 
 print "ALMOST DONE"

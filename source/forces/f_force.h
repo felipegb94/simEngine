@@ -15,6 +15,7 @@
 #include "rapidjson/document.h"
 #include <iostream>
 #include <armadillo>
+#include "jsonParser.h"
 
 class f_force{
 
@@ -29,7 +30,7 @@ public:
 	f_force(const rapidjson::Value& d);
 
 	virtual ~f_force(){};
-	virtual arma::vec getForce() = 0;
+	virtual arma::vec getForce(double time=0) = 0;
 	virtual void updateForce(double time, double anglePhi) = 0;
 	virtual void updateForce(double time, double x,double xDot) = 0;
 
@@ -66,7 +67,7 @@ public:
 	virtual void updateForce(double time, double anglePhi);
 	virtual void updateForce(double time, double x, double xDot);
 
-	virtual arma::vec getForce();
+	virtual arma::vec getForce(double time = 0);
 
 
 
@@ -87,7 +88,7 @@ public:
 	void toGRF();
 	virtual void updateForce(double time, double anglePhi);
 	virtual void updateForce(double time, double x,double xDot);
-	virtual arma::vec getForce();
+	virtual arma::vec getForce(double time = 0);
 
 };
 
@@ -102,8 +103,44 @@ public:
 	virtual void updateForce(double time, double anglePhi);
 	virtual void updateForce(double time, double x, double xDot);
 
-	virtual arma::vec getForce();
+	virtual arma::vec getForce(double time = 0);
 
 };
+class f_torqueFile:public f_force{
+public:
+	double bodyID1;
+	std::string torqueFileName;
+	std::vector<double> time;
+	std::vector<double> torqueVal;
+
+
+	f_torqueFile(const rapidjson::Value& d);
+	~f_torqueFile(){}
+	virtual void print();
+	virtual void updateForce(double time, double anglePhi);
+	virtual void updateForce(double time, double x, double xDot);
+	virtual arma::vec getForce(double time = 0);
+
+};
+/**
+class f_RSDA:public f_force{
+public:
+	arma::vec sP1;
+	double bodyID1;
+	std::string frame;
+	Function xComponentFun;
+	Function yComponentFun;
+
+	f_RSDA(const rapidjson::Value& d);
+	~f_pointForce(){}
+	virtual void print();
+	void toGRF();
+	virtual void updateForce(double time, double anglePhi);
+	virtual void updateForce(double time, double x, double xDot);
+	virtual arma::vec getForce();
+
+
+
+};*/
 
 #endif /* F_FORCE_H_ */

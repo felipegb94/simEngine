@@ -54,7 +54,7 @@ void f_pointForce::updateForce(double time, double x, double xDot){
 
 
 }
-arma::vec f_pointForce::getForce(){
+arma::vec f_pointForce::getForce(double time){
 	return forces;
 }
 

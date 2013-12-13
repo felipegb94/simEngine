@@ -47,6 +47,8 @@ source/forces/f_force.cpp
 source/forces/f_pointForce.cpp
 source/forces/f_torque.cpp
 source/forces/f_forceFile.cpp
+source/forces/f_torqueFile.cpp
+
 
 )
 SET (INCLUDE_FILES
@@ -66,14 +68,10 @@ source/forces/f_force.h
 #add_executable(gutierrez_cpp_03 assignments/assignment3.cpp  ${SOURCE_FILES})
 #target_link_libraries(gutierrez_cpp_03 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
 
-add_executable(gutierrez_cpp_09 assignments/assignment9.cpp  ${SOURCE_FILES})
-target_link_libraries(gutierrez_cpp_09 ${ARMADILLO_LIBRARIES}  ${MUPARSER_LIBRARY} )
 
-add_executable(gutierrez_cpp_project2 assignments/project2.cpp  ${SOURCE_FILES})
-target_link_libraries(gutierrez_cpp_project2 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
 
-#add_executable(gutierrez_cpp_project2 assignments/project2.cpp  ${SOURCE_FILES})
-#target_link_libraries(gutierrez_cpp_project2 ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
+add_executable(gutierrez_cpp_webCutter assignments/webCutter.cpp  ${SOURCE_FILES})
+target_link_libraries(gutierrez_cpp_webCutter ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
 
 
 

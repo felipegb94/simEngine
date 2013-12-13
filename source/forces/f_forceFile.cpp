@@ -88,7 +88,7 @@ void f_forceFile::updateForce(double time, double x, double xDot){
 
 
 }
-arma::vec f_forceFile::getForce(){
+arma::vec f_forceFile::getForce(double time ){
 	return forces;
 }
 

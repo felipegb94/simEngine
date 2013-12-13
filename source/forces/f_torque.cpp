@@ -31,6 +31,6 @@ void f_torque::updateForce(double time, double x, double xDot){
 
 
 }
-arma::vec f_torque::getForce(){
+arma::vec f_torque::getForce(double time){
 	return forces;
 }

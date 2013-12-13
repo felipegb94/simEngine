@@ -52,12 +52,14 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 			//c_absX cX(v);
 
 			constraints.push_back(new c_absX(v));
+			constraints.at(i)->start = numConstraints;
 			numConstraints++;
 		}
 		else if(std::string(v["type"].GetString()) == "AbsoluteY"){
 			//c_absY cY(v);
 
 			constraints.push_back(new c_absY(v));
+			constraints.at(i)->start = numConstraints;
 			numConstraints++;
 
 		}
@@ -65,46 +67,60 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 			//c_absAngle cAngle(v);
 
 			constraints.push_back(new c_absAngle(v));
+			constraints.at(i)->start = numConstraints;
 			numConstraints++;
 
 		}
 		else if(std::string(v["type"].GetString()) == "AbsoluteDistance"){
 			//   c_absDist cDist(v);
 			constraints.push_back(new c_absDist(v));
+			constraints.at(i)->start = numConstraints;
+
 			numConstraints++;
 			numConstraints++;
 
 		}
 		else if(std::string(v["type"].GetString()) == "RelativeX"){
 			constraints.push_back(new c_relX(v));
+			constraints.at(i)->start = numConstraints;
+
 			numConstraints++;
 			numConstraints++;
 
 		}
 		else if(std::string(v["type"].GetString()) == "RelativeY"){
 			constraints.push_back(new c_relY(v));
+			constraints.at(i)->start = numConstraints;
+
 			numConstraints++;
 			numConstraints++;
 		}
 		else if(std::string(v["type"].GetString()) == "RelativeDistance"){
 			constraints.push_back(new c_relDist(v));
+			constraints.at(i)->start = numConstraints;
+
 			numConstraints++;
 			numConstraints++;
 
 		}
 		else if(std::string(v["type"].GetString()) == "RevoluteJoint"){
 			constraints.push_back(new c_revJoint(v));
+			constraints.at(i)->start = numConstraints;
+
 			numConstraints++;
 			numConstraints++;
 
 		}
 		else if(std::string(v["type"].GetString()) == "TranslationalJoint"){
+			constraints.at(i)->start = numConstraints;
+
 			constraints.push_back(new c_transJoint(v));
 		}
 
 	}
 	if(simulationType.compare("Dynamics") == 0){
 		const rapidjson::Value& jsonForces = d["forces"];
+		std::cout << "TORQUEFILETORQUEFILETORQUEFILETORQUEFILETORQUEFILE!!!!!!!!!!!!!!!!!!!!!!!" <<std::endl;
 		std::cout << "here" <<std::endl;
 		for(int i = 0; i < jsonForces.Size(); i++){
 			const rapidjson::Value& v = jsonForces[i];
@@ -117,8 +133,12 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 			}
 			else if(std::string(v["type"].GetString()) == "forceFile"){
 				forces.push_back(new f_forceFile(v));
-
 			}
+			else if(std::string(v["type"].GetString()) == "torqueFile"){
+				std::cout << "TORQUEFILETORQUEFILETORQUEFILETORQUEFILETORQUEFILE!!!!!!!!!!!!!!!!!!!!!!!" <<std::endl;
+				forces.push_back(new f_torqueFile(v));
+			}
+
 		}
 	}
 	std::cout << "here"<<std::endl;
@@ -187,7 +207,7 @@ void Model::solveK(){
 		updateQdd();
 		qdd_list.push_back(qddCurr);
 		std::cout << "Time = " << t << std::endl;
-		std::cout << gamma << std::endl;
+		std::cout << qddCurr << std::endl;
 
 		t+=stepSize;
 
@@ -283,9 +303,8 @@ void Model::solveD(){
 
 		}
 		if(!converge){
-			std::cout << phiCurr<<std::endl;
 
-			std::cout << "Failed to converge at t=" << t << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3) -1),"inf")<< std::endl;
+			//std::cout << "Failed to converge at t=" << t << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3) -1),"inf")<< std::endl;
             //exit(1);
 
 		}
@@ -476,8 +495,10 @@ const std::vector<arma::vec>& Model::getQddList(int bodyID, double spX, double s
 
 }
 const std::vector<arma::vec>& Model::getReactionForces(int constraintID, int bodyID1,arma::vec sp1,int bodyID2 ,arma::vec sp2){
+	std::cout << "Getting Reaction Forces" << std::endl;
 
 	int numBodies = constraints.at(constraintID-1)->numBodies;
+
 	double anglePhiCurr;
 	arma::mat phi_qR;
 	arma::mat phi_qPhi;
@@ -487,10 +508,11 @@ const std::vector<arma::vec>& Model::getReactionForces(int constraintID, int bod
 	arma::vec tK;
 	arma::vec reactionF = arma::zeros(3);
 
-
+	std::cout << "Getting Reaction Forces" << std::endl;
 
 	if(numBodies == 1){
 		Body b = bodies.at(bodyID1-1);
+		c_constraint* c = static_cast<c_constraint*>(constraints.at(constraintID-1));
 
 		for(int i = 0; i <= simulationSteps;i++){
 			phi_qCurr = phi_q_list.at(i);
@@ -499,9 +521,10 @@ const std::vector<arma::vec>& Model::getReactionForces(int constraintID, int bod
 			anglePhiCurr = qCurr(b.start+2);
 			B = b.getB(anglePhiCurr);
 
-			phi_qR = phi_qCurr.submat(constraintID-1,b.start,constraintID-1,b.start+1);
-			phi_qPhi = phi_qCurr.submat(constraintID-1,b.start+2,constraintID-1,b.start+2);
-			lambdaK = lambdaCurr(constraintID-1);
+			phi_qR = phi_qCurr.submat(c->start,b.start,c->start,b.start+1);
+			phi_qPhi = phi_qCurr.submat(c->start,b.start+2,c->start,b.start+2);
+			lambdaK = lambdaCurr(c->start);
+
 
 			fK = -1*phi_qR.t()*lambdaK;
 			reactionF(0) = fK(0);
@@ -509,6 +532,9 @@ const std::vector<arma::vec>& Model::getReactionForces(int constraintID, int bod
 
 			tK = sp1.t()*B.t()*fK - phi_qPhi.t()*lambdaK;
 			reactionF(2) = tK(0);
+
+
+
 			reactionForces_list.push_back(reactionF);
 
 
