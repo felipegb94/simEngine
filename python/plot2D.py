@@ -15,7 +15,8 @@ while i < len(data)+1:
     elif i == 2:
         yLabel = "Y pos of point P&Q "
     elif i == 3:
-        yLabel = "Velocity of Slider"
+        plt.clf()
+        yLabel = "Required Torque"
     elif i == 4:
         yLabel = "xComponent of reaction force at flywheel"
     plotName = "Plot"+str(i)

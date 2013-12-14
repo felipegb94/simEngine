@@ -87,7 +87,7 @@ int main(int argc, char** argv){
 
 	arma::vec sP1 = arma::zeros(2);
 	sP1(0) = -0.02;
-	//std::vector<arma::vec> requiredTorque = m.getReactionForces(7, 1,sP1);
+	std::vector<arma::vec> requiredTorque = m.getReactionForces(7, 1,sP1);
 
 	double xPlot[2][(int)m.getSimulationSteps()];
 	double yPlot[2][(int)m.getSimulationSteps()];
@@ -127,12 +127,12 @@ int main(int argc, char** argv){
 		yPlot[1][i] = qQ2.at(i)(7);
 		plot2X.PushBack(yPlot[0][i],allocator);
 		plot2Y.PushBack(yPlot[1][i],allocator);
-		/**
+
 		xAccPlot[0][i] = m.getStepSize()*i;
-		xAccPlot[1][i] = qdQ.at(i)(1);
+		xAccPlot[1][i] = requiredTorque.at(i)(2);
 		plot3X.PushBack(xAccPlot[0][i],allocator);
 		plot3Y.PushBack(xAccPlot[1][i],allocator);
-
+/**
 		yAccPlot[0][i] = m.getStepSize()*i;
 		yAccPlot[1][i] = qddQ.at(i)(1);
 		plot4X.PushBack(yAccPlot[0][i],allocator);
@@ -144,16 +144,16 @@ int main(int argc, char** argv){
 
 	plot2.PushBack(plot2X,allocator);
 	plot2.PushBack(plot2Y,allocator);
-/**
+
 	plot3.PushBack(plot3X,allocator);
 	plot3.PushBack(plot3Y,allocator);
 
-	plot4.PushBack(plot4X,allocator);
-	plot4.PushBack(plot4Y,allocator);
-*/
+	//plot4.PushBack(plot4X,allocator);
+	//plot4.PushBack(plot4Y,allocator);
+
 	doc.AddMember("Plot1",plot1,allocator);
 	doc.AddMember("Plot2",plot2,allocator);
-	//doc.AddMember("Plot3",plot3,allocator);
+	doc.AddMember("Plot3",plot3,allocator);
 	//doc.AddMember("Plot4",plot4,allocator);
 
 	StringBuffer strbuf;
