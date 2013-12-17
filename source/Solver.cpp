@@ -67,7 +67,20 @@ arma::vec Solver::getPhi(std::vector<Body>* bodies,std::vector<c_constraint*> *c
 			counter++;
 			phi(counter) = revJointPhi(1);
 			counter++;
+		}
+		else if(type == "TranslationalJoint"){
+			c_transJoint* transJoint =  static_cast<c_transJoint*>(constraints->at(i));
+			int bodyID1 = (int) transJoint->bodyID1;
+			int bodyID2 = (int) transJoint->bodyID2;
 
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			arma::vec transJointPhi = getTransJoint(transJoint,body1,body2,t,flags);
+			phi(counter) = transJointPhi(0);
+			counter++;
+			phi(counter) = transJointPhi(1);
+			counter++;
 		}
 		else if(type == "RelativeX"){
 			c_relX* relX =  static_cast<c_relX*>(constraints->at(i));
@@ -198,6 +211,39 @@ arma::mat Solver::getJacobian(std::vector<Body>* bodies,std::vector<c_constraint
 				phi_q(rowFor2,colFor2+1) = revJointPhi_q(1,4);
 				phi_q(rowFor2,colFor2+2) = revJointPhi_q(1,5);
 			}
+			else if(type == "TranslationalJoint"){
+				c_transJoint* transJoint =  static_cast<c_transJoint*>(constraints->at(i));
+				int bodyID1 = (int) transJoint->bodyID1;
+				int bodyID2 = (int) transJoint->bodyID2;
+
+				Body body1 = bodies->at(bodyID1-1);
+				Body body2 = bodies->at(bodyID2-1);
+				arma::mat transJointPhi_q = getTransJoint_jac(transJoint,body1,body2,t);
+
+				int colFor1 = body1.start;
+				int colFor2 = body2.start;
+				int rowFor1 = counter;
+				counter++;
+				int rowFor2 = counter;
+				counter++;
+
+				phi_q(rowFor1,colFor1) = transJointPhi_q(0,0);
+				phi_q(rowFor1,colFor1+1) = transJointPhi_q(0,1);
+				phi_q(rowFor1,colFor1+2) = transJointPhi_q(0,2);
+
+				phi_q(rowFor1,colFor2) = transJointPhi_q(0,3);
+				phi_q(rowFor1,colFor2+1) = transJointPhi_q(0,4);
+				phi_q(rowFor1,colFor2+2) = transJointPhi_q(0,5);
+
+				phi_q(rowFor2,colFor1) = transJointPhi_q(1,0);
+				phi_q(rowFor2,colFor1+1) = transJointPhi_q(1,1);
+				phi_q(rowFor2,colFor1+2) = transJointPhi_q(1,2);
+
+				phi_q(rowFor2,colFor2) = transJointPhi_q(1,3);
+				phi_q(rowFor2,colFor2+1) = transJointPhi_q(1,4);
+				phi_q(rowFor2,colFor2+2) = transJointPhi_q(1,5);
+
+			}
 			else if(type == "RelativeX"){
 				c_relX* relX =  static_cast<c_relX*>(constraints->at(i));
 				int bodyID1 = (int) relX->bodyID1;
@@ -326,6 +372,20 @@ arma::vec Solver::getNu(std::vector<Body>* bodies,std::vector<c_constraint*> *co
             nu(counter) = revJointNu(1);
 			counter++;
 		}
+		else if(type == "TranslationalJoint"){
+			c_transJoint* transJoint =  static_cast<c_transJoint*>(constraints->at(i));
+			int bodyID1 = (int) transJoint->bodyID1;
+			int bodyID2 = (int) transJoint->bodyID2;
+
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			arma::vec transJointNu = getTransJoint(transJoint,body1,body2,t,flags);
+			nu(counter) = transJointNu(0);
+			counter++;
+			nu(counter) = transJointNu(1);
+			counter++;
+		}
 		else if(type == "RelativeX"){
 			c_relX* relX =  static_cast<c_relX*>(constraints->at(i));
 			int bodyID1 = (int) relX->bodyID1;
@@ -421,6 +481,20 @@ arma::vec Solver::getGamma(std::vector<Body>* bodies,std::vector<c_constraint*> 
 			gamma(counter) = revJointGamma(0);
 			counter++;
 			gamma(counter) = revJointGamma(1);
+			counter++;
+		}
+		else if(type == "TranslationalJoint"){
+			c_transJoint* transJoint =  static_cast<c_transJoint*>(constraints->at(i));
+			int bodyID1 = (int) transJoint->bodyID1;
+			int bodyID2 = (int) transJoint->bodyID2;
+
+			Body body1 = bodies->at(bodyID1-1);
+			Body body2 = bodies->at(bodyID2-1);
+
+			arma::vec transJointGamma = getTransJoint(transJoint,body1,body2,t,flags);
+			gamma(counter) = transJointGamma(0);
+			counter++;
+			gamma(counter) = transJointGamma(1);
 			counter++;
 		}
 		else if(type == "RelativeX"){
@@ -709,6 +783,66 @@ arma::vec Solver::getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,
 
 	return revoluteComponents;
 }
+arma::vec Solver::getTransJoint(c_transJoint* transJoint, Body body1, Body body2,double t, int flags){
+
+	arma::vec transComponents(2);
+	arma::vec r1 = arma::zeros(2);
+	arma::vec r2 = arma::zeros(2);
+	arma::mat R = arma::zeros(2,2);
+	R(0,1) = -1;
+	R(1,0) = 1;
+	arma::mat R_t = R.t();
+
+	r1(0) = body1.getQ()(0);
+	r1(1) = body1.getQ()(1);
+	double anglePhi1= body1.getQ()(2);
+	double anglePhid1= body1.getQd()(2);
+	double anglePhidd1= body1.getQdd()(2);
+
+	arma::vec sP1 = transJoint->sP1;
+	arma::vec vP1 = transJoint->vP1;
+	arma::vec vP1_t = vP1.t();
+	arma::mat A1 = body1.getA(anglePhi1);
+	arma::mat A1_t = A1.t();
+	arma::mat B1 = body1.getB(anglePhi1);
+	arma::mat B1_t = B1.t();
+
+	r2(0) = body2.getQ()(0);
+	r2(1) = body2.getQ()(1);
+	double anglePhi2= body2.getQ()(2);
+	double anglePhid2= body2.getQd()(2);
+	double anglePhidd2= body2.getQdd()(2);
+	arma::vec sP2 = transJoint->sP2;
+	arma::vec vP2 = transJoint->vP2;
+	arma::vec vP2_t = vP2.t();
+	arma::mat B2 = body2.getB(anglePhi2);
+	arma::mat B2_t = B2.t();
+
+	double anglePhi12 = anglePhi2 - anglePhi1;
+	double anglePhid12 = anglePhid2 - anglePhid1;
+	arma::vec r12 = r2 - r1;
+	arma::mat B12 = body1.getB(anglePhi12);
+
+
+	if(flags == 1){
+		arma::vec v = vP1_t*B1_t*(r12) - vP1_t*B12*sP2 - vP1_t*R_t*sP1;
+		transComponents(0) = v(0);
+		v = -1*vP1_t*B12*vP2;
+		transComponents(1)= v(0);
+	}
+	else if(flags == 2){
+		transComponents(0) = 0;
+		transComponents(1)= 0;
+	}
+	else if(flags == 3){
+		arma::vec v = vP1_t*(B12*sP2*anglePhid12*anglePhid12 - B1_t*r12*anglePhid1*anglePhid1 - 2*A1_t*r12*anglePhid1);
+		transComponents(0) = v(0);
+		transComponents(1)= 0;
+		transComponents = transComponents*-1;
+	}
+
+	return transComponents;
+}
 
 
 arma::rowvec Solver::getAbsX_jac(c_absX* absX, Body body,double t){
@@ -846,9 +980,80 @@ arma::mat Solver::getRevJoint_jac(c_revJoint* revoluteJoint, Body body1, Body bo
 	revJoint(1,0) = 0;
 	revJoint(1,1) = 1;
 	revJoint(1,2) = (revoluteJoint->sP1(0)*cosine1) - (revoluteJoint->sP1(1)*sine1);
+
 	revJoint(1,3) = 0;
 	revJoint(1,4) = -1;
 	revJoint(1,5) = (-1*revoluteJoint->sP2(0)*cosine2) + (revoluteJoint->sP2(1)*sine2);
 
 	return revJoint;
+}
+arma::mat Solver::getTransJoint_jac(c_transJoint* transJoint, Body body1, Body body2,double t){
+
+	arma::mat transComponents(2,6);
+	arma::vec r1 = arma::zeros(2);
+	arma::vec r2 = arma::zeros(2);
+	arma::mat R = arma::zeros(2,2);
+	R(0,1) = -1;
+	R(1,0) = 1;
+	arma::mat R_t = R.t();
+
+	r1(0) = body1.getQ()(0);
+	r1(1) = body1.getQ()(1);
+	double anglePhi1= body1.getQ()(2);
+	double anglePhid1= body1.getQd()(2);
+	double anglePhidd1= body1.getQdd()(2);
+
+	arma::vec sP1 = transJoint->sP1;
+	arma::vec vP1 = transJoint->vP1;
+	arma::vec vP1_t = vP1.t();
+	arma::mat A1 = body1.getA(anglePhi1);
+	arma::mat A1_t = A1.t();
+	arma::mat B1 = body1.getB(anglePhi1);
+	arma::mat B1_t = B1.t();
+
+	r2(0) = body2.getQ()(0);
+	r2(1) = body2.getQ()(1);
+	double anglePhi2= body2.getQ()(2);
+	double anglePhid2= body2.getQd()(2);
+	double anglePhidd2= body2.getQdd()(2);
+	arma::vec sP2 = transJoint->sP2;
+	arma::vec vP2 = transJoint->vP2;
+	arma::vec vP2_t = vP2.t();
+	arma::mat B2 = body2.getB(anglePhi2);
+	arma::mat B2_t = B2.t();
+
+	double anglePhi12 = anglePhi2 - anglePhi1;
+	double anglePhid12 = anglePhid2 - anglePhid1;
+	arma::vec r12 = r2 - r1;
+	arma::mat A12 = body1.getA(anglePhi12);
+
+	arma::vec temp = arma::zeros(2);
+
+	temp = -1*vP1_t*B1_t;
+
+	transComponents(0,0) = temp(0);
+	transComponents(0,1) = temp(1);
+	arma::vec v = -1*vP1_t*A1_t*r12 - vP1_t*A12*sP2;
+	transComponents(0,2) = v(0);
+
+	transComponents(1,0) = 0;
+	transComponents(1,1) = 0;
+
+	v = vP1_t*A12*vP2;
+	transComponents(1,2) = v(0);
+
+	temp = temp*-1;
+
+	transComponents(0,3) = temp(0);
+	transComponents(0,4) = temp(1);
+	v = vP1_t*A12*sP2;
+	transComponents(0,5) = v(0);
+
+	transComponents(1,3) = 0;
+	transComponents(1,4) = 0;
+    v = vP1_t*A12*vP2;
+	transComponents(1,5) = v(0);
+
+
+	return transComponents;
 }

@@ -58,7 +58,7 @@ void f_torqueFile::updateForce(double time,double anglePhi){
 	forces(2) = torqueVal.at(index);
 	std::cout << "torqueFile =" << index << std::endl;
 }
-void f_torqueFile::updateForce(double time, double x, double xDot){
+void f_torqueFile::updateForce(double time, double x,double xDot, double x2 ,double x2Dot ){
 
 }
 

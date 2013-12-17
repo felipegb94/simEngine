@@ -32,6 +32,7 @@ private:
 	double getRelY(c_relY* relY, Body body1, Body body2,double t, int flags);
 	double getRelDist(c_relDist* relDist, Body body1, Body body2,double t, int flags);
 	arma::vec getRevJoint(c_revJoint* revoluteJoint, Body body1, Body body2,double t, int flags);
+	arma::vec getTransJoint(c_transJoint* transJoint, Body body1, Body body2,double t, int flags);
 
 
 	arma::rowvec getAbsX_jac(c_absX* absX, Body body,double t);
@@ -42,6 +43,8 @@ private:
 	arma::rowvec getRelY_jac(c_relY* relY, Body body1, Body body2,double t);
 	arma::rowvec getRelDist_jac(c_relDist* relDist, Body body1, Body body2,double t);
 	arma::mat getRevJoint_jac(c_revJoint* revoluteJoint, Body body1, Body body2,double t);
+	arma::mat getTransJoint_jac(c_transJoint* transJoint, Body body1, Body body2,double t);
+
 };
 
 #endif /* SOLVER_H_ */

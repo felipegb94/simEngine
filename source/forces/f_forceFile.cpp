@@ -51,7 +51,7 @@ void f_forceFile::updateForce(double time,double anglePhi){
 	forces(2) = 0;
 	//std::cout << "wrong updateFORCE!!!!!"<<std::endl;
 }
-void f_forceFile::updateForce(double time, double x, double xDot){
+void f_forceFile::updateForce(double time, double x,double xDot, double x2,double x2Dot ){
 	/**if(xDot <= 0){
 
 		forces(0) = 0;

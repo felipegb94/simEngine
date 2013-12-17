@@ -77,14 +77,12 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 			constraints.at(i)->start = numConstraints;
 
 			numConstraints++;
-			numConstraints++;
 
 		}
 		else if(std::string(v["type"].GetString()) == "RelativeX"){
 			constraints.push_back(new c_relX(v));
 			constraints.at(i)->start = numConstraints;
 
-			numConstraints++;
 			numConstraints++;
 
 		}
@@ -93,13 +91,11 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 			constraints.at(i)->start = numConstraints;
 
 			numConstraints++;
-			numConstraints++;
 		}
 		else if(std::string(v["type"].GetString()) == "RelativeDistance"){
 			constraints.push_back(new c_relDist(v));
 			constraints.at(i)->start = numConstraints;
 
-			numConstraints++;
 			numConstraints++;
 
 		}
@@ -113,14 +109,14 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 		}
 		else if(std::string(v["type"].GetString()) == "TranslationalJoint"){
 			constraints.at(i)->start = numConstraints;
-
 			constraints.push_back(new c_transJoint(v));
+			numConstraints++;
+			numConstraints++;
 		}
 
 	}
 	if(simulationType.compare("Dynamics") == 0){
 		const rapidjson::Value& jsonForces = d["forces"];
-		std::cout << "TORQUEFILETORQUEFILETORQUEFILETORQUEFILETORQUEFILE!!!!!!!!!!!!!!!!!!!!!!!" <<std::endl;
 		std::cout << "here" <<std::endl;
 		for(int i = 0; i < jsonForces.Size(); i++){
 			const rapidjson::Value& v = jsonForces[i];
@@ -130,6 +126,9 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 			}
 			else if(std::string(v["type"].GetString()) == "Torque"){
 				forces.push_back(new f_torque(v));
+			}
+			else if(std::string(v["type"].GetString()) == "RSDA"){
+				forces.push_back(new f_rsda(v));
 			}
 			else if(std::string(v["type"].GetString()) == "forceFile"){
 				forces.push_back(new f_forceFile(v));
@@ -241,8 +240,8 @@ void Model::solveD(){
 	phi_q_list.push_back(phi_qCurr);
 	force_list.push_back(QACurr);
 	//std::cout << QACurr << std::endl;
-	int maxIterations = 100;
-	double tolerance = 1.0e-7;
+	int maxIterations = 30;
+	double tolerance = 1.0e-8;
 
 	/**
 	 * Start time iterations
@@ -296,7 +295,7 @@ void Model::solveD(){
 			lambdaCurr -= correction.rows(bodies.size()*3,correction.n_elem-1);
 
 			if(arma::norm(correction.rows(0,(bodies.size()*3) -1),"inf") <= tolerance){
-				std::cout << "Converging at " << j << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3)-1),"inf")<<  std::endl;
+				//std::cout << "Converging at " << j << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3)-1),"inf")<<  std::endl;
 				converge = true;
 				break;
 			}
@@ -398,6 +397,26 @@ void Model::updateForces(){
 			double xDotVal = qdCurr(bodies.at(bodyIndex).start);
 			forces.at(i)->updateForce(t,xVal,xDotVal);
 		}
+		else if(forces.at(i)->type == "RSDA"){
+			f_rsda* rsdaForce = static_cast<f_rsda*>(forces.at(i));
+			double bodyID1 = rsdaForce->bodyID1;
+			double bodyID2 = rsdaForce->bodyID2;
+			Body b1 = bodies.at(bodyID1-1);
+			double anglePhiI = b1.getQ()(2);
+			double anglePhidI = b1.getQd()(2);
+
+			if(bodyID2 == 0){
+				double anglePhiJ = 0;
+				double anglePhidJ = 0;
+				forces.at(i)->updateForce(t,  anglePhiI,  anglePhidI, anglePhiJ , anglePhidJ);
+			}
+			else{
+				Body b2 = bodies.at(bodyID2-1);
+				double anglePhiJ = b2.getQ()(2);
+				double anglePhidJ = b2.getQd()(2);
+				forces.at(i)->updateForce(t,  anglePhiI,  anglePhidI, anglePhiJ , anglePhidJ);
+			}
+		}
 		else{
 			int angleIndex = bodies.at(bodyIndex).start + 2;
 			double currentAngle = qCurr(angleIndex);
@@ -414,12 +433,39 @@ void Model::updateQA(){
 		QACurr(bodies.at(i).start+1) += gravity(1)*mass;
 	}
 	for(int i = 0; i < forces.size(); i++){
-		int bodyIndex = forces.at(i)->bodyID - 1;
-		int forceIndex = bodies.at(bodyIndex).start;
-		arma::vec tmpForce = forces.at(i)->getForce();
-		QACurr(forceIndex) += tmpForce(0);
-		QACurr(forceIndex+1) += tmpForce(1);
-		QACurr(forceIndex+2) += tmpForce(2);
+		if(forces.at(i)->type == "RSDA"){
+			f_rsda* rsdaForce = static_cast<f_rsda*>(forces.at(i));
+			int bodyID1 = rsdaForce->bodyID1;
+			int forceIndex1 = bodies.at(bodyID1-1).start;
+			int bodyID2 = rsdaForce->bodyID2;
+			if(bodyID2 == 0){
+				arma::vec tmpForce = forces.at(i)->getForce();
+				QACurr(forceIndex1) += tmpForce(0);
+				QACurr(forceIndex1+1) += tmpForce(1);
+				QACurr(forceIndex1+2) += tmpForce(2);
+			}
+			else{
+				int forceIndex2 = bodies.at(bodyID2-1).start;
+				arma::vec tmpForce = forces.at(i)->getForce();
+				QACurr(forceIndex1) += tmpForce(0);
+				QACurr(forceIndex1+1) += tmpForce(1);
+				QACurr(forceIndex1+2) += tmpForce(2);
+				QACurr(forceIndex2) -= tmpForce(0);
+				QACurr(forceIndex2+1) -= tmpForce(1);
+				QACurr(forceIndex2+2) -= tmpForce(2);
+			}
+
+
+
+		}
+		else{
+			int bodyIndex = forces.at(i)->bodyID - 1;
+			int forceIndex = bodies.at(bodyIndex).start;
+			arma::vec tmpForce = forces.at(i)->getForce();
+			QACurr(forceIndex) += tmpForce(0);
+			QACurr(forceIndex+1) += tmpForce(1);
+			QACurr(forceIndex+2) += tmpForce(2);
+		}
 	}
 
 }

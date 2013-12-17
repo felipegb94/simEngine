@@ -50,7 +50,7 @@ void f_pointForce::updateForce(double time, double anglePhi){
 	forces(2) = sP1(0)*(forces(0)*(-1*sine) + forces(1)*cosine) - sP1(1)*(forces(0)*cosine + forces(1)*sine);
 
 }
-void f_pointForce::updateForce(double time, double x, double xDot){
+void f_pointForce::updateForce(double time, double x,double xDot, double x2,double x2Dot ){
 
 
 }

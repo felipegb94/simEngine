@@ -27,7 +27,7 @@ void f_torque::updateForce(double time,double anglePhi){
 	forces(1) = 0;
 	forces(2) = torqueFun.eval(time);
 }
-void f_torque::updateForce(double time, double x, double xDot){
+void f_torque::updateForce(double time, double x,double xDot, double x2,double x2Dot){
 
 
 }
