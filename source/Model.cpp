@@ -16,7 +16,7 @@
 
 
 Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputsteps,double stepsize)
-:gravity("9.81 0"),
+:gravity("0 -9.81"),
  name(d["name"].GetString()),
  t(0.0),
  BETA(0.3025),
@@ -108,6 +108,7 @@ Model::Model(MyJsonDocument& d, std::string type, 	double tend,double outputstep
 
 		}
 		else if(std::string(v["type"].GetString()) == "TranslationalJoint"){
+			std::cout << "transjoint"<<std::endl;
 			constraints.at(i)->start = numConstraints;
 			constraints.push_back(new c_transJoint(v));
 			numConstraints++;
@@ -295,7 +296,7 @@ void Model::solveD(){
 			lambdaCurr -= correction.rows(bodies.size()*3,correction.n_elem-1);
 
 			if(arma::norm(correction.rows(0,(bodies.size()*3) -1),"inf") <= tolerance){
-				//std::cout << "Converging at " << j << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3)-1),"inf")<<  std::endl;
+				std::cout << "Converging at " << j << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3)-1),"inf")<<  std::endl;
 				converge = true;
 				break;
 			}
@@ -303,8 +304,8 @@ void Model::solveD(){
 		}
 		if(!converge){
 
-			//std::cout << "Failed to converge at t=" << t << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3) -1),"inf")<< std::endl;
-            //exit(1);
+			std::cout << "Failed to converge at t=" << t << "norm  = "<<arma::norm(correction.rows(0,(bodies.size()*3) -1),"inf")<< std::endl;
+            exit(1);
 
 		}
 

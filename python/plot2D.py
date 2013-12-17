@@ -11,12 +11,12 @@ i = 1
 while i < len(data)+1:
     yLabel = ""
     if i == 1:
-        yLabel = "Angular Velocity of flywheel"
+        yLabel = "reactionForceX at P (GRF)"
     elif i == 2:
-        yLabel = "Y pos of point P&Q "
+        yLabel = "reactionForceY at P (GRF)"
     elif i == 3:
-        plt.clf()
-        yLabel = "Required Torque"
+        #plt.clf()
+        yLabel = "Reaction Forces at P "
     elif i == 4:
         yLabel = "xComponent of reaction force at flywheel"
     plotName = "Plot"+str(i)

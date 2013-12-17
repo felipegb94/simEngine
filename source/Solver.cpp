@@ -787,7 +787,9 @@ arma::vec Solver::getTransJoint(c_transJoint* transJoint, Body body1, Body body2
 
 	arma::vec transComponents(2);
 	arma::vec r1 = arma::zeros(2);
+	arma::vec rd1 = arma::zeros(2);
 	arma::vec r2 = arma::zeros(2);
+	arma::vec rd2 = arma::zeros(2);
 	arma::mat R = arma::zeros(2,2);
 	R(0,1) = -1;
 	R(1,0) = 1;
@@ -795,6 +797,8 @@ arma::vec Solver::getTransJoint(c_transJoint* transJoint, Body body1, Body body2
 
 	r1(0) = body1.getQ()(0);
 	r1(1) = body1.getQ()(1);
+	rd1(0) = body1.getQd()(0);
+	rd1(1) = body1.getQd()(1);
 	double anglePhi1= body1.getQ()(2);
 	double anglePhid1= body1.getQd()(2);
 	double anglePhidd1= body1.getQdd()(2);
@@ -809,6 +813,8 @@ arma::vec Solver::getTransJoint(c_transJoint* transJoint, Body body1, Body body2
 
 	r2(0) = body2.getQ()(0);
 	r2(1) = body2.getQ()(1);
+	rd2(0) = body2.getQd()(0);
+	rd2(1) = body2.getQd()(1);
 	double anglePhi2= body2.getQ()(2);
 	double anglePhid2= body2.getQd()(2);
 	double anglePhidd2= body2.getQdd()(2);
@@ -821,6 +827,8 @@ arma::vec Solver::getTransJoint(c_transJoint* transJoint, Body body1, Body body2
 	double anglePhi12 = anglePhi2 - anglePhi1;
 	double anglePhid12 = anglePhid2 - anglePhid1;
 	arma::vec r12 = r2 - r1;
+	arma::vec rd12 = rd2 - rd1;
+
 	arma::mat B12 = body1.getB(anglePhi12);
 
 
@@ -835,7 +843,7 @@ arma::vec Solver::getTransJoint(c_transJoint* transJoint, Body body1, Body body2
 		transComponents(1)= 0;
 	}
 	else if(flags == 3){
-		arma::vec v = vP1_t*(B12*sP2*anglePhid12*anglePhid12 - B1_t*r12*anglePhid1*anglePhid1 - 2*A1_t*r12*anglePhid1);
+		arma::vec v = vP1_t*(B12*sP2*anglePhid12*anglePhid12 - B1_t*r12*anglePhid1*anglePhid1 - 2*A1_t*rd12*anglePhid1);
 		transComponents(0) = v(0);
 		transComponents(1)= 0;
 		transComponents = transComponents*-1;

@@ -14,6 +14,8 @@ c_transJoint::c_transJoint(const rapidjson::Value& d)
  	bodyID1(d["body1"].GetDouble()),
  	bodyID2(d["body2"].GetDouble())
 {
+	std::cout << "test1";
+	c_constraint::numBodies = 2;
 
 	const rapidjson::Value& b = d["sP1"];
 	std::vector<double> sP1Temp;

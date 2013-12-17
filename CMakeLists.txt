@@ -71,8 +71,8 @@ source/forces/f_force.h
 
 
 
-add_executable(gutierrez_cpp_simplePend assignments/simplePend.cpp  ${SOURCE_FILES})
-target_link_libraries(gutierrez_cpp_simplePend ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
+add_executable(gutierrez_cpp_finalExam assignments/finalExam.cpp  ${SOURCE_FILES})
+target_link_libraries(gutierrez_cpp_finalExam ${ARMADILLO_LIBRARIES} ${MUPARSER_LIBRARY} )
 
 
 

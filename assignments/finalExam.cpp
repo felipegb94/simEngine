@@ -73,6 +73,7 @@ int main(int argc, char** argv){
 
 	m.solveD();
 	cout << "took " << timer.toc() << " seconds to solve" << endl;
+	timer.tic();
 	arma::vec Q = arma::zeros(2);
 	arma::vec P = arma::zeros(2);
 	double constraintID = 1;
@@ -174,6 +175,7 @@ int main(int argc, char** argv){
 
 		system( "python ../../repos/simEngine/python/plot2D.py" );
 
+		cout << "took " << timer.toc() << " seconds to plot" << endl;
 
 
 
