@@ -121,14 +121,14 @@ int main(int argc, char** argv){
 
 		for(int i = 0; i <= m.getSimulationSteps(); i++){
 
-			xPlot[0][i] = qgen.at(i)(4);
-			xPlot[1][i] = qgen.at(i)(3);
+			xPlot[0][i] = m.getStepSize()*i;
+			xPlot[1][i] = reactionForces.at(i)(0);
 
 			plot1X.PushBack(xPlot[0][i],allocator);
 			plot1Y.PushBack(xPlot[1][i],allocator);
 
 			yPlot[0][i] = m.getStepSize()*i;
-			yPlot[1][i] = qgen.at(i)(0);
+			yPlot[1][i] = reactionForces.at(i)(1);
 			plot2X.PushBack(yPlot[0][i],allocator);
 			plot2Y.PushBack(yPlot[1][i],allocator);
 
